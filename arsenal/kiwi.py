@@ -16,4 +16,3 @@
 class Kiwi(object):
     def __init__(self, ironic_driver=None):
         self.ironic_driver = ironic_driver
-
