@@ -24,11 +24,11 @@ class Api(object):
 
         self.manager = manager
 
-        app.add_url_rule('/resources',
+        app.add_url_rule('/v1/resources',
                          view_func=self.create_resource,
                          methods=['POST'])
 
-        app.add_url_rule('/resources/<uuid>',
+        app.add_url_rule('/v1/resources/<uuid>',
                          view_func=self.get_resource,
                          methods=['GET'])
 
@@ -38,7 +38,7 @@ class Api(object):
 
         resource = self.manager.create_resource(
             Resource(ironic_driver=request_data['ironic_driver']))
-        response.headers['Location'] = '/resources/{}'.format(resource.uuid)
+        response.headers['Location'] = '/v1/resources/{}'.format(resource.uuid)
 
         return response
 

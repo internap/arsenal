@@ -34,13 +34,13 @@ class TestAPI(base.BaseTestCase):
             resource = Resource(uuid='some-uuid', ironic_driver='hello')
             self.manager.create_resource.return_value = resource
 
-            result = http_client.post("/resources", headers=json_content_type,
+            result = http_client.post("/v1/resources", headers=json_content_type,
                                       data=json.dumps({
                                           'ironic_driver': 'hello'
                                       }))
             self.assertEqual(201, result.status_code)
             self.assertIn('Location', result.headers)
-            self.assertIn('/resources/some-uuid', result.headers['Location'])
+            self.assertIn('/v1/resources/some-uuid', result.headers['Location'])
 
             self.manager.create_resource.assert_called_with(
                 Resource(uuid=None, ironic_driver='hello'))
@@ -53,7 +53,7 @@ class TestAPI(base.BaseTestCase):
                 ironic_driver='wow',
                 uuid=uuid)
 
-            result = http_client.get("/resources/{}".format(uuid),
+            result = http_client.get("/v1/resources/{}".format(uuid),
                                      headers=json_content_type)
             self.assertEqual(200, result.status_code)
             self.assertEqual('application/json', result.content_type)
