@@ -13,7 +13,7 @@
 # under the License.
 
 from arsenal.ironic_synchronizer import IronicSynchronizer
-from arsenal.kiwi import Kiwi
+from arsenal.resource import Resource
 from arsenal.tests import base
 from mock import mock
 
@@ -23,7 +23,7 @@ class TestIronicSynchronizer(base.TestCase):
         ironicclient = mock.Mock()
         synchronizer = IronicSynchronizer(ironicclient)
 
-        kiwi = Kiwi(ironic_driver='test')
-        synchronizer.sync_node(kiwi)
+        resource = Resource(ironic_driver='test')
+        synchronizer.sync_node(resource)
 
         ironicclient.node.create.assert_called_with(driver='test')

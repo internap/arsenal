@@ -17,5 +17,5 @@ class IronicSynchronizer(object):
     def __init__(self, ironicclient):
         self.ironicclient = ironicclient
 
-    def sync_node(self, kiwi):
-        self.ironicclient.node.create(driver=kiwi.ironic_driver)
+    def sync_node(self, resource):
+        self.ironicclient.node.create(driver=resource.ironic_driver)

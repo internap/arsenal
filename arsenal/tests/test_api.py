@@ -14,10 +14,12 @@
 import json
 
 from arsenal.api import Api
-from arsenal.kiwi import Kiwi
+from arsenal.resource import Resource
 from arsenal.tests import base
 from flask import Flask
 from mock import mock
+
+json_content_type = {"content-type": "application/json"}
 
 
 class TestAPI(base.TestCase):
@@ -27,31 +29,32 @@ class TestAPI(base.TestCase):
         self.manager = mock.Mock()
         Api(self.app, manager=self.manager)
 
-    def test_creating_a_kiwi(self):
+    def test_creating_a_resource(self):
         with self.app.test_client() as http_client:
-            result = http_client.post("/kiwis", headers={"content-type": "application/json"}, data=json.dumps({
-                'ironic_driver': 'hello'
-            }))
+            result = http_client.post("/resources", headers=json_content_type,
+                                      data=json.dumps({
+                                          'ironic_driver': 'hello'
+                                      }))
             self.assertEqual(201, result.status_code)
             self.assertIn('Location', result.headers)
-            self.assertIn('/kiwis/', result.headers['Location'])
+            self.assertIn('/resources/', result.headers['Location'])
 
-            self.manager.create_kiwi.assert_called_with(Kiwi(uuid=None, ironic_driver='hello'))
+            self.manager.create_resource.assert_called_with(
+                Resource(uuid=None, ironic_driver='hello'))
 
-    def test_fetching_a_kiwi(self):
+    def test_fetching_a_resource(self):
         with self.app.test_client() as http_client:
             uuid = "cecc2a85-3d6b-461c-a8f3-f4a370f3b10c"
 
-            self.manager.get_kiwi.return_value = Kiwi(ironic_driver='wow',
-                                                      uuid=uuid)
+            self.manager.get_resource.return_value = Resource(
+                ironic_driver='wow',
+                uuid=uuid)
 
-            result = http_client.get("/kiwis/{}".format(uuid),
-                                     headers={"content-type": "application/json"})
+            result = http_client.get("/resources/{}".format(uuid),
+                                     headers=json_content_type)
             self.assertEqual(200, result.status_code)
             self.assertEqual('application/json', result.content_type)
             self.assertEqual({'uuid': uuid, 'ironic_driver': 'wow'},
                              json.loads(result.data.decode(result.charset)))
 
-
-            self.manager.get_kiwi.assert_called_with('%s' % uuid)
-
+            self.manager.get_resource.assert_called_with('%s' % uuid)
