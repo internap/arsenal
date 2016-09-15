@@ -11,6 +11,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from arsenal import adapters
+from arsenal.core import manager
 from arsenal.core.manager import Manager
 from arsenal.core.resource import Resource
 import mock
@@ -43,6 +45,11 @@ class TestManager(base.BaseTestCase):
 
         self.assertEqual(resource, loaded_resource)
         self.datastore.load.assert_called_with(mock.sentinel.a_uuid)
+
+    def test_fetching_one_resource_not_found(self):
+        self.datastore.load.side_effect = adapters.ResourceNotFound
+
+        self.assertRaises(manager.ResourceNotFound, self.manager.get_resource, 'a uuid')
 
     def test_fetching_all_resources_returns_it_from_the_datastore(self):
         resourceA = Resource(uuid=mock.sentinel.a_uuid, ironic_driver='hello')

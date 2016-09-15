@@ -11,6 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from arsenal import adapters
 
 
 class MemoryDatastore(object):
@@ -22,7 +23,10 @@ class MemoryDatastore(object):
         self.resources[resource.uuid] = resource
 
     def load(self, uuid):
-        return self.resources[uuid]
+        try:
+            return self.resources[uuid]
+        except KeyError as e:
+            raise adapters.ResourceNotFound() from e
 
     def load_all(self):
         return list(self.resources.values())

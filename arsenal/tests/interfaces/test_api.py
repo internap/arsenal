@@ -13,6 +13,7 @@
 # under the License.
 import json
 
+from arsenal.core.manager import ResourceNotFound
 from arsenal.core.resource import Resource
 from arsenal.interfaces.api import Api
 from flask import Flask
@@ -65,6 +66,16 @@ class TestAPI(base.BaseTestCase):
                              json.loads(result.data.decode(result.charset)))
 
             self.manager.get_resource.assert_called_with('%s' % uuid)
+
+    def test_fetching_a_resource_404_does_not_exist(self):
+        with self.app.test_client() as http_client:
+            uuid = "cecc2a85-3d6b-461c-a8f3-f4a370f3b10c"
+
+            self.manager.get_resource.side_effect = ResourceNotFound
+
+            result = http_client.get("{}/resources/{}".format(API_ROOT, uuid),
+                                     headers=json_content_type)
+            self.assertEqual(404, result.status_code)
 
     def test_fetch_all_resources_empty_list(self):
         with self.app.test_client() as http_client:

@@ -13,6 +13,7 @@
 # under the License.
 import json
 
+from arsenal.core.manager import ResourceNotFound
 from arsenal.core.resource import Resource
 from flask import make_response
 from flask import request
@@ -59,8 +60,11 @@ class Api(object):
         return response
 
     def get_resource(self, uuid):
-        resource = self.manager.get_resource(uuid)
-
+        try:
+            resource = self.manager.get_resource(uuid)
+        except ResourceNotFound:
+            return make_response('', 404)
+        
         data = resource_to_api(resource)
 
         response = make_response(json.dumps(data), 200)
