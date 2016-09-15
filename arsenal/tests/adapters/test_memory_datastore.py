@@ -11,6 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from arsenal import adapters
 from arsenal.adapters.memory_datastore import MemoryDatastore
 from arsenal.core.resource import Resource
 from oslotest import base
@@ -27,3 +28,7 @@ class TestManager(base.BaseTestCase):
 
         self.assertEqual(resource, self.datastore.load("uuid"))
         self.assertEqual([resource], self.datastore.load_all())
+
+    def test_resource_not_found(self):
+        self.assertRaises(adapters.ResourceNotFound,
+                          self.datastore.load, 'something that doesnt exist')

@@ -11,7 +11,10 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 import uuid
+
+from arsenal import adapters
 
 
 class Manager(object):
@@ -29,4 +32,11 @@ class Manager(object):
         return self.datastore.load_all()
 
     def get_resource(self, resource_uuid):
-        return self.datastore.load(resource_uuid)
+        try:
+            return self.datastore.load(resource_uuid)
+        except adapters.ResourceNotFound as e:
+            raise ResourceNotFound() from e
+
+
+class ResourceNotFound(Exception):
+    pass
