@@ -13,16 +13,16 @@
 # under the License.
 import json
 
-from arsenal.api import Api
-from arsenal.resource import Resource
-from arsenal.tests import base
+from arsenal.core.resource import Resource
+from arsenal.interfaces.api import Api
 from flask import Flask
 from mock import mock
+from oslotest import base
 
 json_content_type = {"content-type": "application/json"}
 
 
-class TestAPI(base.TestCase):
+class TestAPI(base.BaseTestCase):
     def setUp(self):
         super().setUp()
         self.app = Flask("test")
