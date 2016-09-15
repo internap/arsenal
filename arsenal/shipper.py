@@ -19,5 +19,5 @@ class Shipper(object):
         self.synchronizer = synchronizer
 
     def ship(self):
-        for kiwi in self.datasource.get_kiwis():
-            self.synchronizer.sync_node(kiwi)
+        for resource in self.datasource.get_resources():
+            self.synchronizer.sync_node(resource)

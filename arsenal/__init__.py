@@ -17,3 +17,11 @@ import pbr.version
 
 __version__ = pbr.version.VersionInfo(
     'arsenal').version_string()
+
+
+class Model(object):
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and vars(self) == vars(other)
+
+    def __repr__(self):
+        return "<{} {}>".format(type(self).__name__, vars(self))

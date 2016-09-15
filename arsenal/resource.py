@@ -11,8 +11,10 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from arsenal import Model
 
 
-class Kiwi(object):
-    def __init__(self, ironic_driver=None):
+class Resource(Model):
+    def __init__(self, uuid=None, ironic_driver=None):
+        self.uuid = uuid
         self.ironic_driver = ironic_driver

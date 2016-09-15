@@ -25,22 +25,22 @@ class TestShipper(base.TestCase):
         self.synchronizer = Mock()
         self.shipper = Shipper(self.datasource, self.synchronizer)
 
-    def test_can_ship_one_kiwi(self):
-        self.datasource.get_kiwis.return_value = [sentinel.shizzle]
+    def test_can_ship_one_resource(self):
+        self.datasource.get_resources.return_value = [sentinel.shizzle]
 
         self.shipper.ship()
 
         self.synchronizer.sync_node.assert_called_with(sentinel.shizzle)
 
-    def test_can_ship_several_kiwis(self):
-        self.datasource.get_kiwis.return_value = [sentinel.kiwi1,
-                                                  sentinel.kiwi2,
-                                                  sentinel.kiwi3]
+    def test_can_ship_several_resources(self):
+        self.datasource.get_resources.return_value = [sentinel.resource1,
+                                                      sentinel.resource2,
+                                                      sentinel.resource3]
 
         self.shipper.ship()
 
         self.synchronizer.sync_node.assert_has_calls([
-            call(sentinel.kiwi1),
-            call(sentinel.kiwi2),
-            call(sentinel.kiwi3),
+            call(sentinel.resource1),
+            call(sentinel.resource2),
+            call(sentinel.resource3),
         ])
