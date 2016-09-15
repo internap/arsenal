@@ -21,7 +21,8 @@ class TestManager(base.BaseTestCase):
     def setUp(self):
         super().setUp()
         self.datastore = mock.Mock()
-        self.manager = Manager(datastore=self.datastore)
+        self.resource_synchronizer = mock.Mock()
+        self.manager = Manager(datastore=self.datastore, resource_synchronizer=self.resource_synchronizer)
 
     @mock.patch('uuid.uuid4')
     def test_creating_one_resource_returns_it_with_a_uuid_and_saves_it(self, uuid4_mock):
@@ -32,6 +33,7 @@ class TestManager(base.BaseTestCase):
 
         self.assertEqual(mock.sentinel.a_uuid, created_resource.uuid)
         self.datastore.save.assert_called_with(created_resource)
+        self.resource_synchronizer.sync_node.assert_called_with(created_resource)
 
     def test_fetching_one_resource_returns_it_from_the_datastore(self):
         resource = Resource(uuid=mock.sentinel.a_uuid, ironic_driver='hello')

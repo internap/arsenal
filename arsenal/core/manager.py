@@ -15,12 +15,14 @@ import uuid
 
 
 class Manager(object):
-    def __init__(self, datastore):
+    def __init__(self, datastore, resource_synchronizer):
         self.datastore = datastore
+        self.resource_synchronizer = resource_synchronizer
 
     def create_resource(self, resource):
         resource.uuid = uuid.uuid4()
         self.datastore.save(resource)
+        self.resource_synchronizer.sync_node(resource)
         return resource
 
     def list_resources(self):
