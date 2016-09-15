@@ -34,11 +34,12 @@ class Api(object):
 
     def create_resource(self):
         response = make_response('', 201)
-        response.headers['Location'] = '/resources/'
         request_data = request.json
 
-        self.manager.create_resource(
+        resource = self.manager.create_resource(
             Resource(ironic_driver=request_data['ironic_driver']))
+        response.headers['Location'] = '/resources/{}'.format(resource.uuid)
+
         return response
 
     def get_resource(self, uuid):
