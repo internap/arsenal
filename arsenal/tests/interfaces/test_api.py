@@ -29,15 +29,18 @@ class TestAPI(base.BaseTestCase):
         self.manager = mock.Mock()
         Api(self.app, manager=self.manager)
 
-    def test_creating_a_resource(self):
+    def test_creating_a_resource_returns_a_location(self):
         with self.app.test_client() as http_client:
+            resource = Resource(uuid='some-uuid', ironic_driver='hello')
+            self.manager.create_resource.return_value = resource
+
             result = http_client.post("/resources", headers=json_content_type,
                                       data=json.dumps({
                                           'ironic_driver': 'hello'
                                       }))
             self.assertEqual(201, result.status_code)
             self.assertIn('Location', result.headers)
-            self.assertIn('/resources/', result.headers['Location'])
+            self.assertIn('/resources/some-uuid', result.headers['Location'])
 
             self.manager.create_resource.assert_called_with(
                 Resource(uuid=None, ironic_driver='hello'))
