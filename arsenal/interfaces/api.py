@@ -53,7 +53,7 @@ class Api(object):
         for resource in resources:
             api_response.append(resource_to_api(resource))
 
-        response = make_response(json.dumps(api_response), 200)
+        response = make_response(json.dumps({"resources": api_response}), 200)
         response.headers['Content-Type'] = 'application/json'
 
         return response

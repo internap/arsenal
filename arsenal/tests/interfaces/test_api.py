@@ -74,9 +74,7 @@ class TestAPI(base.BaseTestCase):
                                      headers=json_content_type)
             self.assertEqual(200, result.status_code)
             self.assertEqual('application/json', result.content_type)
-            self.assertEqual([],
-                             json.loads(result.data.decode(result.charset)))
-
+            self.assertEqual({"resources": []}, json.loads(result.data.decode(result.charset)))
 
     def test_fetch_all_resources_two_items(self):
         with self.app.test_client() as http_client:
@@ -89,6 +87,7 @@ class TestAPI(base.BaseTestCase):
                                      headers=json_content_type)
             self.assertEqual(200, result.status_code)
             self.assertEqual('application/json', result.content_type)
-            self.assertEqual([{'ironic_driver': 'yes', 'uuid': '14'},
-                              {'ironic_driver': 'no', 'uuid': '15'}],
-                             json.loads(result.data.decode(result.charset)))
+            self.assertEqual({"resources": [
+                {'ironic_driver': 'yes', 'uuid': '14'},
+                {'ironic_driver': 'no', 'uuid': '15'}
+            ]}, json.loads(result.data.decode(result.charset)))
