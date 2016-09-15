@@ -24,7 +24,7 @@ from oslotest import base
 from retry.api import retry_call
 
 
-class MainTest(base.BaseTestCase):
+class TestMain(base.BaseTestCase):
 
     def test_application_is_starting(self):
         with app_running() as port:
