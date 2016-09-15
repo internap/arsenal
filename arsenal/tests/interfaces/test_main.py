@@ -19,6 +19,7 @@ import os
 import random
 import requests
 import requests.exceptions
+from decorator import contextmanager
 from oslotest import base
 from retry.api import retry_call
 
@@ -26,28 +27,42 @@ from retry.api import retry_call
 class MainTest(base.BaseTestCase):
 
     def test_application_is_starting(self):
-        port = random.randint(30000, 60000)
-        env = os.environ.copy()
-        env.update(dict(
-            FLASK_APP="arsenal.interfaces.main:app"
-        ))
-        p = subprocess.Popen([sys.executable,
-                              _get_entry_point_path('flask'),
-                              'run',
-                              '--port',
-                              str(port)],
-                             env=env)
-
-        try:
+        with app_running() as port:
             def test():
                 r = requests.get("http://localhost:{}".format(port))
                 self.assertEqual(404, r.status_code)
 
             retry_call(test, tries=20, delay=0.05,
                        exceptions=requests.exceptions.ConnectionError)
-        finally:
-            p.kill()
 
+    def test_application_serving_the_api(self):
+        with app_running() as port:
+            def test():
+                r = requests.post("http://localhost:{}/v1/resources".format(port))
+                self.assertEqual(500, r.status_code)
+
+            retry_call(test, tries=20, delay=0.05,
+                       exceptions=requests.exceptions.ConnectionError)
+
+
+@contextmanager
+def app_running():
+    port = random.randint(30000, 60000)
+    env = os.environ.copy()
+    env.update(dict(
+        FLASK_APP="arsenal.interfaces.main:app"
+    ))
+    p = subprocess.Popen([sys.executable,
+                          _get_entry_point_path('flask'),
+                          'run',
+                          '--port',
+                          str(port)],
+                         env=env)
+
+    try:
+        yield port
+    finally:
+        p.kill()
 
 def _get_entry_point_path(entry_point):
     return os.path.join(os.path.dirname(sys.executable), entry_point)
