@@ -16,6 +16,7 @@ from arsenal import Model
 
 
 class Resource(Model):
-    def __init__(self, uuid=None, ironic_driver=None):
+    def __init__(self, uuid=None, ironic_driver=None, foreign_tracking=None):
         self.uuid = uuid
         self.ironic_driver = ironic_driver
+        self.foreign_tracking = foreign_tracking or {}
