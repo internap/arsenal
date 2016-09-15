@@ -13,7 +13,7 @@
 # under the License.
 import json
 
-from arsenal.resource import Resource
+from arsenal.core.resource import Resource
 from flask import make_response
 from flask import request
 

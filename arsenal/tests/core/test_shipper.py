@@ -12,12 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from arsenal.shipper import Shipper
-from arsenal.tests import base
+from arsenal.core.shipper import Shipper
 from mock import Mock, sentinel, call
+from oslotest import base
 
 
-class TestShipper(base.TestCase):
+class TestShipper(base.BaseTestCase):
     def setUp(self):
         super().setUp()
 

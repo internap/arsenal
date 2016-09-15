@@ -12,24 +12,24 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import os
-import random
 import subprocess
 import sys
-import unittest
 
+import os
+import random
 import requests
 import requests.exceptions
+from oslotest import base
 from retry.api import retry_call
 
 
-class MainTest(unittest.TestCase):
+class MainTest(base.BaseTestCase):
 
     def test_application_is_starting(self):
         port = random.randint(30000, 60000)
         env = os.environ.copy()
         env.update(dict(
-            FLASK_APP="arsenal.main:app"
+            FLASK_APP="arsenal.interfaces.main:app"
         ))
         p = subprocess.Popen([sys.executable,
                               _get_entry_point_path('flask'),
