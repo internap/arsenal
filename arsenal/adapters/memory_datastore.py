@@ -23,3 +23,6 @@ class MemoryDatastore(object):
 
     def load(self, uuid):
         return self.resources[uuid]
+
+    def load_all(self):
+        return list(self.resources.values())

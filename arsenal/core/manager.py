@@ -23,5 +23,8 @@ class Manager(object):
         self.datastore.save(resource)
         return resource
 
+    def list_resources(self):
+        return self.datastore.load_all()
+
     def get_resource(self, resource_uuid):
         return self.datastore.load(resource_uuid)
