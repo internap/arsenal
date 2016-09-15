@@ -41,3 +41,13 @@ class TestManager(base.BaseTestCase):
 
         self.assertEqual(resource, loaded_resource)
         self.datastore.load.assert_called_with(mock.sentinel.a_uuid)
+
+    def test_fetching_all_resources_returns_it_from_the_datastore(self):
+        resourceA = Resource(uuid=mock.sentinel.a_uuid, ironic_driver='hello')
+        resourceB = Resource(uuid=mock.sentinel.another_uuid, ironic_driver='hello')
+        self.datastore.load_all.return_value = [resourceA, resourceB]
+
+        loaded_resources = self.manager.list_resources()
+
+        self.assertEqual([resourceA, resourceB], loaded_resources)
+        self.datastore.load_all.assert_called_with()

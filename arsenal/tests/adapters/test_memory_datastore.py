@@ -26,3 +26,4 @@ class TestManager(base.BaseTestCase):
         self.datastore.save(resource)
 
         self.assertEqual(resource, self.datastore.load("uuid"))
+        self.assertEqual([resource], self.datastore.load_all())

@@ -28,6 +28,10 @@ class Api(object):
                          view_func=self.create_resource,
                          methods=['POST'])
 
+        app.add_url_rule('/v1/resources',
+                         view_func=self.get_all_resources,
+                         methods=['GET'])
+
         app.add_url_rule('/v1/resources/<uuid>',
                          view_func=self.get_resource,
                          methods=['GET'])
@@ -42,13 +46,30 @@ class Api(object):
 
         return response
 
+    def get_all_resources(self):
+        resources = self.manager.list_resources()
+
+        api_response = []
+        for resource in resources:
+            api_response.append(resource_to_api(resource))
+
+        response = make_response(json.dumps(api_response), 200)
+        response.headers['Content-Type'] = 'application/json'
+
+        return response
+
     def get_resource(self, uuid):
         resource = self.manager.get_resource(uuid)
 
-        data = {'ironic_driver': resource.ironic_driver,
-                'uuid': resource.uuid}
+        data = resource_to_api(resource)
 
         response = make_response(json.dumps(data), 200)
         response.headers['Content-Type'] = 'application/json'
 
         return response
+
+
+def resource_to_api(resource):
+    data = {'ironic_driver': resource.ironic_driver,
+            'uuid': resource.uuid}
+    return data

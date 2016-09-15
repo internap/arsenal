@@ -19,6 +19,8 @@ from flask import Flask
 from mock import mock
 from oslotest import base
 
+API_ROOT = "/v1"
+
 json_content_type = {"content-type": "application/json"}
 
 
@@ -34,13 +36,15 @@ class TestAPI(base.BaseTestCase):
             resource = Resource(uuid='some-uuid', ironic_driver='hello')
             self.manager.create_resource.return_value = resource
 
-            result = http_client.post("/v1/resources", headers=json_content_type,
+            result = http_client.post("{}/resources".format(API_ROOT),
+                                      headers=json_content_type,
                                       data=json.dumps({
                                           'ironic_driver': 'hello'
                                       }))
             self.assertEqual(201, result.status_code)
             self.assertIn('Location', result.headers)
-            self.assertIn('/v1/resources/some-uuid', result.headers['Location'])
+            self.assertIn('{}/resources/some-uuid'.format(API_ROOT),
+                          result.headers['Location'])
 
             self.manager.create_resource.assert_called_with(
                 Resource(uuid=None, ironic_driver='hello'))
@@ -53,7 +57,7 @@ class TestAPI(base.BaseTestCase):
                 ironic_driver='wow',
                 uuid=uuid)
 
-            result = http_client.get("/v1/resources/{}".format(uuid),
+            result = http_client.get("{}/resources/{}".format(API_ROOT, uuid),
                                      headers=json_content_type)
             self.assertEqual(200, result.status_code)
             self.assertEqual('application/json', result.content_type)
@@ -61,3 +65,30 @@ class TestAPI(base.BaseTestCase):
                              json.loads(result.data.decode(result.charset)))
 
             self.manager.get_resource.assert_called_with('%s' % uuid)
+
+    def test_fetch_all_resources_empty_list(self):
+        with self.app.test_client() as http_client:
+            self.manager.list_resources.return_value = []
+
+            result = http_client.get("{}/resources".format(API_ROOT),
+                                     headers=json_content_type)
+            self.assertEqual(200, result.status_code)
+            self.assertEqual('application/json', result.content_type)
+            self.assertEqual([],
+                             json.loads(result.data.decode(result.charset)))
+
+
+    def test_fetch_all_resources_two_items(self):
+        with self.app.test_client() as http_client:
+            self.manager.list_resources.return_value = [
+                Resource(uuid='14', ironic_driver='yes'),
+                Resource(uuid='15', ironic_driver='no')
+            ]
+
+            result = http_client.get("{}/resources".format(API_ROOT),
+                                     headers=json_content_type)
+            self.assertEqual(200, result.status_code)
+            self.assertEqual('application/json', result.content_type)
+            self.assertEqual([{'ironic_driver': 'yes', 'uuid': '14'},
+                              {'ironic_driver': 'no', 'uuid': '15'}],
+                             json.loads(result.data.decode(result.charset)))
