@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+
 class Shipper(object):
     def __init__(self, datasource, synchronizer):
         self.datasource = datasource

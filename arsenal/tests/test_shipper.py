@@ -33,7 +33,9 @@ class TestShipper(base.TestCase):
         self.synchronizer.sync_node.assert_called_with(sentinel.shizzle)
 
     def test_can_ship_several_kiwis(self):
-        self.datasource.get_kiwis.return_value = [sentinel.kiwi1, sentinel.kiwi2, sentinel.kiwi3]
+        self.datasource.get_kiwis.return_value = [sentinel.kiwi1,
+                                                  sentinel.kiwi2,
+                                                  sentinel.kiwi3]
 
         self.shipper.ship()
 

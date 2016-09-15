@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+
 class IronicSynchronizer(object):
     def __init__(self, ironicclient):
         self.ironicclient = ironicclient
