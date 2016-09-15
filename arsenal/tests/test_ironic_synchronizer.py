@@ -12,17 +12,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""
-test_arsenal
-----------------------------------
-
-Tests for `arsenal` module.
-"""
-
+from arsenal.ironic_synchronizer import IronicSynchronizer
+from arsenal.kiwi import Kiwi
 from arsenal.tests import base
+from mock import mock
 
 
-class TestArsenal(base.TestCase):
+class TestIronicSynchronizer(base.TestCase):
+    def test_ironic_synchronizer_synchronizes_a_node(self):
+        ironicclient = mock.Mock()
+        synchronizer = IronicSynchronizer(ironicclient)
 
-    def test_something(self):
-        pass
+        kiwi = Kiwi(ironic_driver='test')
+        synchronizer.sync_node(kiwi)
+
+        ironicclient.node.create.assert_called_with(driver='test')
