@@ -1,0 +1,29 @@
+<html>
+<head>
+    <title>Arsenal overview</title>
+</head>
+<body>
+<script src="http://mathieumitchell.com/viz.js">
+</script>
+
+<div id="graph_div"></div>
+
+<script type="text/vnd.graphviz" id="graph_id">
+    digraph g {
+        node [
+            shape = "record";
+        ]
+
+        {% for resource in resources %}
+            "{{resource.uuid}}" [
+                label = "{% raw %}{{% endraw %}{{resource.uuid}}|\<\<{{resource.type}}\>\>|{% for key, value in resource.attributes.items() %}+ {{key}}: {{value}}{% raw %}\l{% endraw %}{% endfor %}{% raw %}}{% endraw %}";
+            ]
+        {% endfor %}
+    }
+</script>
+
+<script>
+    document.getElementById("graph_div").innerHTML = Viz(document.getElementById("graph_id").innerHTML, "svg");
+</script>
+</body>
+</html>
