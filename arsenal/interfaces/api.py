@@ -52,7 +52,8 @@ class Api(object):
 
         resource = self.manager.create_resource(
             Resource(type=request_data['type'],
-                     attributes=request_data['attributes']))
+                     attributes=request_data['attributes'],
+                     relations=self._to_relations(request_data.get('relations', {}))))
         response = make_response(json.dumps(resource_to_api(resource)), 201)
         response.headers['Location'] = '/v1/resources/{}'.format(resource.uuid)
 
@@ -102,6 +103,10 @@ class Api(object):
 
         return response
 
+    def _to_relations(self, raw_relations):
+        return {k: self.manager.get_resource(v)
+                for k, v in raw_relations.items()}
+
 
 def request_to_patch_operation(request):
     patch_operations = {
@@ -115,4 +120,6 @@ def request_to_patch_operation(request):
 def resource_to_api(resource):
     return {'uuid': resource.uuid,
             'type': resource.type,
-            'attributes': resource.attributes}
+            'attributes': resource.attributes,
+            'relations': {k: v.uuid
+                          for k, v in resource.relations.items()}}
