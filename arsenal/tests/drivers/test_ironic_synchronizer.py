@@ -11,6 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from ironicclient.v1.node import Node
 
 from arsenal.drivers.ironic_synchronizer import IronicSynchronizer
 from arsenal.core.resource import Resource
@@ -19,11 +20,14 @@ from oslotest import base
 
 
 class TestIronicSynchronizer(base.BaseTestCase):
-    def test_ironic_synchronizer_synchronizes_a_node(self):
+    def test_ironic_synchronizer_synchronizes_a_node_and_store_its_uuid(self):
         ironicclient = mock.Mock()
+        ironicclient.node.create.return_value = Node(None, {'uuid': mock.sentinel.ironic_uuid})
+
         synchronizer = IronicSynchronizer(ironicclient)
 
         resource = Resource(ironic_driver='test')
         synchronizer.sync_node(resource)
 
         ironicclient.node.create.assert_called_with(driver='test')
+        self.assertEqual(mock.sentinel.ironic_uuid, resource.foreign_tracking.get('ironic'))

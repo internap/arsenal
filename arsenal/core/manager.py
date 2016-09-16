@@ -25,7 +25,7 @@ class Manager(object):
     def create_resource(self, resource):
         resource.uuid = uuid.uuid4()
         self.datastore.save(resource)
-        self.resource_synchronizer.sync_node(resource)
+        self.synchronize_resource(resource.uuid)
         return resource
 
     def list_resources(self):
@@ -37,6 +37,10 @@ class Manager(object):
         except adapters.ResourceNotFound as e:
             raise ResourceNotFound() from e
 
+    def synchronize_resource(self, resource_uuid):
+        resource = self.datastore.load(resource_uuid)
+        self.resource_synchronizer.sync_node(resource)
+        self.datastore.save(resource)
 
 class ResourceNotFound(Exception):
     pass

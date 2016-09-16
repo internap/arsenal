@@ -28,14 +28,15 @@ class TestManager(base.BaseTestCase):
 
     @mock.patch('uuid.uuid4')
     def test_creating_one_resource_returns_it_with_a_uuid_and_saves_it(self, uuid4_mock):
-        uuid4_mock.return_value = mock.sentinel.a_uuid
+        uuid4_mock.return_value = 'new-uuid'
         origin_resource = Resource(uuid=None, ironic_driver='hello')
+        self.manager.synchronize_resource = mock.Mock()
 
         created_resource = self.manager.create_resource(origin_resource)
 
-        self.assertEqual(mock.sentinel.a_uuid, created_resource.uuid)
+        self.assertEqual('new-uuid', created_resource.uuid)
         self.datastore.save.assert_called_with(created_resource)
-        self.resource_synchronizer.sync_node.assert_called_with(created_resource)
+        self.manager.synchronize_resource.assert_called_with('new-uuid')
 
     def test_fetching_one_resource_returns_it_from_the_datastore(self):
         resource = Resource(uuid=mock.sentinel.a_uuid, ironic_driver='hello')
@@ -60,3 +61,15 @@ class TestManager(base.BaseTestCase):
 
         self.assertEqual([resourceA, resourceB], loaded_resources)
         self.datastore.load_all.assert_called_with()
+
+    def test_synchronizing_one_resource_saves_changes_by_the_synchronizer(self):
+        origin_resource = Resource(uuid='my-uuid')
+        self.datastore.load.return_value = origin_resource
+        self.resource_synchronizer.sync_node.side_effect = \
+            lambda r: r.foreign_tracking.update({'ironic': 'ironic-uuid'})
+
+        self.manager.synchronize_resource('my-uuid')
+
+        self.resource_synchronizer.sync_node.assert_called_with(origin_resource)
+        self.datastore.save.assert_called_with(
+            Resource(uuid='my-uuid', foreign_tracking={'ironic': 'ironic-uuid'}))
