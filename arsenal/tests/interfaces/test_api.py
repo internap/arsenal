@@ -107,7 +107,7 @@ class TestAPI(base.BaseTestCase):
                 Resource(uuid='15', type='server', attributes=dict(ironic_driver='no'))
             ]
 
-            result = http_client.get("{}/resources".format(API_ROOT),
+            result = http_client.get("{}/resources/".format(API_ROOT),
                                      headers=json_content_type)
             self.assertEqual(200, result.status_code)
             self.assertEqual('application/json', result.content_type)

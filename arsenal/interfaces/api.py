@@ -39,6 +39,10 @@ class Api(object):
                          view_func=self.get_all_resources,
                          methods=['GET'])
 
+        app.add_url_rule('/v1/resources/',
+                         view_func=self.get_all_resources,
+                         methods=['GET'])
+
         app.add_url_rule('/v1/resources/<uuid>',
                          view_func=self.get_resource,
                          methods=['GET'])
