@@ -20,4 +20,4 @@ class Shipper(object):
 
     def ship(self):
         for resource in self.datasource.get_resources():
-            self.synchronizer.sync_node(resource)
+            self.synchronizer.synchronize(resource)

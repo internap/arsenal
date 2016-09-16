@@ -41,7 +41,7 @@ class Manager(object):
     def synchronize_resource(self, resource_uuid):
         resource = self.datastore.load(resource_uuid)
         for sync in self.resource_synchronizers:
-            sync.sync_node(resource)
+            sync.synchronize(resource)
         self.datastore.save(resource)
 
     def update_resource(self, resource_uuid, changes):

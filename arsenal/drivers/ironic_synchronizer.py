@@ -17,7 +17,7 @@ class IronicSynchronizer(object):
     def __init__(self, ironicclient):
         self.ironicclient = ironicclient
 
-    def sync_node(self, resource):
+    def synchronize(self, resource):
         if 'server' not in resource.type:
             return
 
