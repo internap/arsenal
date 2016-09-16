@@ -1,5 +1,8 @@
 language: python
 
+env:
+  - CI='travis'
+
 python:
   - "3.4"
 
