@@ -13,6 +13,7 @@
 # under the License.
 from arsenal.adapters.memory_datastore import MemoryDatastore
 from arsenal.core.manager import Manager
+from arsenal.drivers.ironic_pdu_synchronizer import IronicPduSynchronizer
 from arsenal.drivers.ironic_synchronizer import IronicSynchronizer
 from arsenal.interfaces.api import Api
 from flask import Flask
@@ -35,7 +36,8 @@ except Exception:
 def wire_stuff(app):
     datastore = MemoryDatastore()
     # TODO(lindycoder): put a real thing in there if you got the TEST for it!
-    Api(app, Manager(datastore, [IronicSynchronizer(ironicclient)]))
+    Api(app, Manager(datastore, [IronicSynchronizer(ironicclient),
+                                 IronicPduSynchronizer(ironicclient)]))
 
 
 def get_app():
