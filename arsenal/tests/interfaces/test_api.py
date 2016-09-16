@@ -56,6 +56,7 @@ class TestAPI(base.BaseTestCase):
                                           }
                                       }))
             self.assertEqual(201, result.status_code)
+            self.assertEqual('application/json', result.headers['Content-Type'])
 
             self.assertDictEqual(
                 json.loads(result.data.decode(result.charset)),
@@ -177,7 +178,8 @@ class TestAPI(base.BaseTestCase):
                 )
             )
 
-            self.assertEqual(201, result.status_code)
+            self.assertEqual(200, result.status_code)
+            self.assertEqual('application/json', result.headers['Content-Type'])
             self.assertDictEqual(
                 json.loads(result.data.decode(result.charset)),
                 {

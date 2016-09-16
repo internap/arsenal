@@ -55,6 +55,7 @@ class Api(object):
                      attributes=request_data['attributes'],
                      relations=self._to_relations(request_data.get('relations', {}))))
         response = make_response(json.dumps(resource_to_api(resource)), 201)
+        response.headers['Content-type'] = 'application/json'
         response.headers['Location'] = '/v1/resources/{}'.format(resource.uuid)
 
         return response
@@ -68,7 +69,8 @@ class Api(object):
         except InvalidUpdate:
             return make_response('', 400)
 
-        response = make_response(json.dumps(resource_to_api(resource)), 201)
+        response = make_response(json.dumps(resource_to_api(resource)), 200)
+        response.headers['Content-type'] = 'application/json'
         response.headers['Location'] = '/v1/resources/{}'.format(resource.uuid)
 
         return response
