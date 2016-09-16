@@ -38,6 +38,22 @@ class TestManager(base.BaseTestCase):
         self.datastore.save.assert_called_with(created_resource)
         self.manager.synchronize_resource.assert_called_with('new-uuid')
 
+    @mock.patch('uuid.uuid4')
+    def test_creating_one_resource_with_relations_sync_the_relations(self, uuid4_mock):
+        uuid4_mock.return_value = 'new-uuid'
+        origin_resource = Resource(uuid=None, type='switch', attributes={},
+                                   relations={"port 1": Resource("uuid1")})
+
+        self.manager.synchronize_resource = mock.Mock()
+
+        created_resource = self.manager.create_resource(origin_resource)
+
+        self.datastore.save.assert_called_with(created_resource)
+        self.manager.synchronize_resource.assert_has_calls([
+            mock.call('new-uuid'),
+            mock.call('uuid1'),
+        ], any_order=True)
+
     def test_fetching_one_resource_returns_it_from_the_datastore(self):
         resource = Resource(uuid=mock.sentinel.a_uuid, type='firewall', attributes={})
         self.datastore.load.return_value = resource
@@ -83,6 +99,20 @@ class TestManager(base.BaseTestCase):
         self.manager.update_resource('my-uuid', [change])
         self.datastore.save.assert_called_with(origin_resource)
         self.resource_synchronizer.sync_node.assert_called_with(origin_resource)
+
+    def test_update_resource_with_relations_sync_the_relations(self):
+        self.manager.synchronize_resource = mock.Mock()
+        origin_resource = Resource(uuid='my-uuid', relations={"port1": Resource("your-uuid")})
+        self.datastore.load.return_value = origin_resource
+
+        change = mock.Mock()
+
+        self.manager.update_resource('my-uuid', [change])
+        self.datastore.save.assert_called_with(origin_resource)
+        self.manager.synchronize_resource.assert_has_calls([
+            mock.call('my-uuid'),
+            mock.call('your-uuid'),
+        ], any_order=True)
 
     def test_update_resource_fails_if_the_patching_returns_an_error(self):
         origin_resource = Resource(uuid='my-uuid')
