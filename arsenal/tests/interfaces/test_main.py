@@ -28,6 +28,8 @@ from retry.api import retry_call
 
 @unittest.skip
 class TestMain(base.BaseTestCase):
+    # TODO(lindycoder): Remove when we have read configurations working
+    __test__ = False
 
     def test_application_is_starting(self):
         with app_running() as port:
