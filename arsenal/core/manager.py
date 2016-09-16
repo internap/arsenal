@@ -42,6 +42,14 @@ class Manager(object):
         self.resource_synchronizer.sync_node(resource)
         self.datastore.save(resource)
 
+    def update_resource(self, resource_uuid, changes):
+        resource = self.datastore.load(resource_uuid)
+        for patch in changes:
+            patch.apply(resource)
+        self.datastore.save(resource)
+        self.synchronize_resource(resource.uuid)
+        return resource
+
 
 class ResourceNotFound(Exception):
     pass
