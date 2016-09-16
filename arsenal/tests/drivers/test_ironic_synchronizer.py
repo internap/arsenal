@@ -26,7 +26,7 @@ class TestIronicSynchronizer(base.BaseTestCase):
 
         synchronizer = IronicSynchronizer(ironicclient)
 
-        resource = Resource(ironic_driver='test')
+        resource = Resource(attributes=dict(ironic_driver='test'))
         synchronizer.sync_node(resource)
 
         ironicclient.node.create.assert_called_with(driver='test')
