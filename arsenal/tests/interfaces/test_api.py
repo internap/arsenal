@@ -13,7 +13,7 @@
 # under the License.
 import json
 
-from arsenal.core.manager import ResourceNotFound
+from arsenal.core.manager import ResourceNotFound, InvalidUpdate
 from arsenal.core.patch import Replace
 from arsenal.core.resource import Resource
 from arsenal.interfaces.api import Api
@@ -120,33 +120,8 @@ class TestAPI(base.BaseTestCase):
         with self.app.test_client() as http_client:
             resource = Resource(uuid='some-uuid',
                                 type='',
-                                attributes={'ironic_driver': 'hello'})
-            self.manager.create_resource.return_value = resource
+                                attributes={'ironic_driver': 'changed'})
 
-            result = http_client.post("{}/resources".format(API_ROOT),
-                                      headers=json_content_type,
-                                      data=json.dumps({
-                                          'type': '',
-                                          'attributes': {'ironic_driver': 'hello'}
-                                      }))
-            self.assertEqual(201, result.status_code)
-
-            self.assertDictEqual(
-                json.loads(result.data.decode(result.charset)),
-                {
-                    "uuid": "some-uuid",
-                    "type": "",
-                    "attributes": {"ironic_driver": "hello"}
-                }
-            )
-            self.assertIn('Location', result.headers)
-            self.assertIn('{}/resources/some-uuid'.format(API_ROOT),
-                          result.headers['Location'])
-
-            self.manager.create_resource.assert_called_with(
-                Resource(uuid=None, type='', attributes={'ironic_driver': 'hello'}))
-
-            resource.attributes = {'ironic_driver': 'changed'}
             self.manager.update_resource.return_value = resource
 
             result = http_client.patch(
@@ -163,7 +138,6 @@ class TestAPI(base.BaseTestCase):
             self.assertEqual(201, result.status_code)
             self.assertDictEqual(
                 json.loads(result.data.decode(result.charset)),
-
                 {
                     "uuid": "some-uuid",
                     "type": "",
@@ -182,6 +156,23 @@ class TestAPI(base.BaseTestCase):
                     Replace(["attributes", "ironic_driver"], "changed")
                 ]
             )
+
+    def test_updating_a_resource_with_an_unknown_attribute_says_bad_request(self):
+        with self.app.test_client() as http_client:
+            self.manager.update_resource.side_effect = InvalidUpdate
+
+            result = http_client.patch(
+                "{}/resources/some-uuid".format(API_ROOT),
+                headers=json_content_type,
+                data=json.dumps(
+                    [{"value": "changed",
+                      "path": "/attributes/trololololo",
+                      "op": "replace"}
+                     ]
+                )
+            )
+
+            self.assertEqual(400, result.status_code)
 
     def test_fetch_all_accept_html(self):
         with self.app.test_client() as http_client:

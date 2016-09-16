@@ -13,7 +13,7 @@
 # under the License.
 from arsenal import adapters
 from arsenal.core import manager
-from arsenal.core.manager import Manager
+from arsenal.core.manager import Manager, InvalidUpdate
 from arsenal.core.resource import Resource
 import mock
 from oslotest import base
@@ -73,3 +73,30 @@ class TestManager(base.BaseTestCase):
         self.resource_synchronizer.sync_node.assert_called_with(origin_resource)
         self.datastore.save.assert_called_with(
             Resource(uuid='my-uuid', foreign_tracking={'ironic': 'ironic-uuid'}))
+
+    def test_update_resource(self):
+        origin_resource = Resource(uuid='my-uuid')
+        self.datastore.load.return_value = origin_resource
+
+        change = mock.Mock()
+
+        self.manager.update_resource('my-uuid', [change])
+        self.datastore.save.assert_called_with(origin_resource)
+        self.resource_synchronizer.sync_node.assert_called_with(origin_resource)
+
+    def test_update_resource_fails_if_the_patching_returns_an_error(self):
+        origin_resource = Resource(uuid='my-uuid')
+        self.datastore.load.return_value = origin_resource
+
+        change = mock.Mock()
+
+        change.apply.side_effect = AttributeError
+        self.assertRaises(InvalidUpdate, self.manager.update_resource, 'my-uuid', [change])
+
+        change.apply.side_effect = TypeError
+        self.assertRaises(InvalidUpdate, self.manager.update_resource, 'my-uuid', [change])
+
+        change.apply.side_effect = KeyError
+        self.assertRaises(InvalidUpdate, self.manager.update_resource, 'my-uuid', [change])
+
+        self.assertFalse(self.datastore.save.called)
