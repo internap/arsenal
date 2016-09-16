@@ -12,8 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from arsenal.drivers import Synchronizer
 
-class IronicSynchronizer(object):
+
+class IronicSynchronizer(Synchronizer):
     def __init__(self, ironicclient):
         self.ironicclient = ironicclient
 
