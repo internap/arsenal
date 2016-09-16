@@ -23,7 +23,7 @@ class Manager(object):
         self.resource_synchronizer = resource_synchronizer
 
     def create_resource(self, resource):
-        resource.uuid = uuid.uuid4()
+        resource.uuid = str(uuid.uuid4())
         self.datastore.save(resource)
         self.synchronize_resource(resource.uuid)
         return resource

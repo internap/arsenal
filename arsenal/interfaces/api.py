@@ -105,6 +105,6 @@ def request_to_patch_operation(request):
 
 
 def resource_to_api(resource):
-    return {'uuid': str(resource.uuid),
+    return {'uuid': resource.uuid,
             'type': resource.type,
             'attributes': resource.attributes}
