@@ -13,7 +13,7 @@
 # under the License.
 import json
 
-from arsenal.core.manager import ResourceNotFound
+from arsenal.core.manager import ResourceNotFound, InvalidUpdate
 from arsenal.core.patch import Replace, Create, Remove
 from arsenal.core.resource import Resource
 from flask import make_response
@@ -62,7 +62,11 @@ class Api(object):
         request_data = request.json
         changes = request_to_patch_operation(request_data)
 
-        resource = self.manager.update_resource(uuid, changes=changes)
+        try:
+            resource = self.manager.update_resource(uuid, changes=changes)
+        except InvalidUpdate:
+            return make_response('', 400)
+
         response = make_response(json.dumps(resource_to_api(resource)), 201)
         response.headers['Location'] = '/v1/resources/{}'.format(resource.uuid)
 

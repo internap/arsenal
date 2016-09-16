@@ -45,11 +45,18 @@ class Manager(object):
     def update_resource(self, resource_uuid, changes):
         resource = self.datastore.load(resource_uuid)
         for patch in changes:
-            patch.apply(resource)
+            try:
+                patch.apply(resource)
+            except (KeyError, TypeError, AttributeError) as e:
+                raise InvalidUpdate(e)
         self.datastore.save(resource)
         self.synchronize_resource(resource.uuid)
         return resource
 
 
 class ResourceNotFound(Exception):
+    pass
+
+
+class InvalidUpdate(Exception):
     pass
