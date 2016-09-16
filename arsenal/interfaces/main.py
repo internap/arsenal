@@ -11,7 +11,6 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import os
 from arsenal.adapters.memory_datastore import MemoryDatastore
 from arsenal.core.manager import Manager
 from arsenal.drivers.ironic_synchronizer import IronicSynchronizer
@@ -19,10 +18,8 @@ from arsenal.interfaces.api import Api
 from flask import Flask
 from ironicclient import client
 
-ironicclient = None
-# TODO(wajdi): Move this in to config loader
-if 'TRAVIS' not in os.environ:
-    # TODO(wajdi): Make this a real config
+
+try:
     ironicclient = client.get_client(
         "1",
         os_username="admin",
@@ -31,6 +28,8 @@ if 'TRAVIS' not in os.environ:
         os_auth_url="http://172.27.59.42:5000/v2.0/",
         os_region_name="RegionOne"
     )
+except Exception:
+    ironicclient = None
 
 
 def wire_stuff(app):
