@@ -16,8 +16,18 @@
 
         {% for resource in resources %}
             "{{resource.uuid}}" [
-                label = "{% raw %}{{% endraw %}{{resource.uuid}}|\<\<{{resource.type}}\>\>|{% for key, value in resource.attributes.items() %}+ {{key}}: {{value}}{% raw %}\l{% endraw %}{% endfor %}{% raw %}}{% endraw %}";
+                label = "{% raw %}{{% endraw %}
+                {{resource.uuid}}|
+                \<\<{{resource.type}}\>\>|
+                {% for key, value in resource.attributes.items() -%}
+                    + {{key}}: {{value}}{% raw %}\l{% endraw %}
+                {% endfor -%}
+                {% raw %}}{% endraw %}";
             ]
+
+            {% for key, value in resource.relations.items() -%}
+                "{{resource.uuid}}" -> "{{value.uuid}}" [ label = "{{key}}" ];
+            {% endfor -%}
         {% endfor %}
     }
 </script>
