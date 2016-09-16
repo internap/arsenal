@@ -21,6 +21,9 @@
                 \<\<{{resource.type}}\>\>|
                 {% for key, value in resource.attributes.items() -%}
                     + {{key}}: {{value}}{% raw %}\l{% endraw %}
+                {% endfor -%}|
+                {% for key, value in resource.foreign_tracking.items() -%}
+                    + {{key}}: {{value}}{% raw %}\l{% endraw %}
                 {% endfor -%}
                 {% raw %}}{% endraw %}";
             ]
