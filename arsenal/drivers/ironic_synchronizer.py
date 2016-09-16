@@ -21,9 +21,20 @@ class IronicSynchronizer(object):
         if 'server' not in resource.type:
             return
 
-        ironic_node = self.ironicclient.node.create(
-            driver=resource.attributes['ironic_driver'],
-            properties={'memory_mb': resource.attributes['ram'],
-                        'local_gb': resource.attributes['disk'],
-                        'cpus': resource.attributes['cpu_count'] * resource.attributes['cpu_cores']})
-        resource.foreign_tracking['ironic'] = ironic_node.uuid
+        if resource.foreign_tracking.get('ironic'):
+            self.ironicclient.node.update(
+                resource.foreign_tracking['ironic'],
+                [
+                    {'op': 'add', 'path': '/driver', 'value': resource.attributes['ironic_driver']},
+                    {'op': 'add', 'path': '/properties/memory_mb', 'value': resource.attributes['ram']},
+                    {'op': 'add', 'path': '/properties/local_gb', 'value': resource.attributes['disk']},
+                    {'op': 'add', 'path': '/properties/cpus', 'value':
+                        resource.attributes['cpu_count'] * resource.attributes['cpu_cores']},
+                ])
+        else:
+            ironic_node = self.ironicclient.node.create(
+                driver=resource.attributes['ironic_driver'],
+                properties={'memory_mb': resource.attributes['ram'],
+                            'local_gb': resource.attributes['disk'],
+                            'cpus': resource.attributes['cpu_count'] * resource.attributes['cpu_cores']})
+            resource.foreign_tracking['ironic'] = ironic_node.uuid

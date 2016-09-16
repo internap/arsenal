@@ -81,3 +81,26 @@ class TestIronicSynchronizer(base.BaseTestCase):
                                                                 'local_gb': 480,
                                                                 'cpus': 8})
         self.assertEqual(mock.sentinel.ironic_uuid, resource.foreign_tracking.get('ironic'))
+
+    def test_ironic_synchronizer_updates_a_node_when_it_has_a_uuid_already(self):
+        ironicclient = mock.Mock()
+        ironicclient.node.create.return_value = Node(None, {'uuid': mock.sentinel.ironic_uuid})
+
+        synchronizer = IronicSynchronizer(ironicclient)
+
+        resource = Resource(type='server',
+                            attributes=dict(
+                                ironic_driver='test',
+                                cpu_count=2,
+                                cpu_cores=4,
+                                ram=2048,
+                                disk=480),
+                            foreign_tracking=dict(ironic='ironic-uuid'))
+        synchronizer.sync_node(resource)
+
+        ironicclient.node.update.assert_called_with('ironic-uuid', [
+            {'op': 'add', 'path': '/driver', 'value': 'test'},
+            {'op': 'add', 'path': '/properties/memory_mb', 'value': 2048},
+            {'op': 'add', 'path': '/properties/local_gb', 'value': 480},
+            {'op': 'add', 'path': '/properties/cpus', 'value': 8},
+        ])
