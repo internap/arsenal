@@ -64,7 +64,7 @@ class Api(object):
             resource = self.manager.get_resource(uuid)
         except ResourceNotFound:
             return make_response('', 404)
-        
+
         data = resource_to_api(resource)
 
         response = make_response(json.dumps(data), 200)
