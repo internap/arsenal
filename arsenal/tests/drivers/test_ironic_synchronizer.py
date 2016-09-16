@@ -34,7 +34,7 @@ class TestIronicSynchronizer(base.BaseTestCase):
                                 ram=2048,
                                 disk=480)
                             )
-        synchronizer.sync_node(resource)
+        synchronizer.synchronize(resource)
 
         ironicclient.node.create.assert_called_with(driver='test',
                                                     properties={'memory_mb': 2048,
@@ -56,7 +56,7 @@ class TestIronicSynchronizer(base.BaseTestCase):
                                 password='pass',
                                 community='snmp')
                             )
-        synchronizer.sync_node(resource)
+        synchronizer.synchronize(resource)
 
         self.assertEqual(False, ironicclient.node.create.called)
 
@@ -74,7 +74,7 @@ class TestIronicSynchronizer(base.BaseTestCase):
                                 ram=2048,
                                 disk=480)
                             )
-        synchronizer.sync_node(resource)
+        synchronizer.synchronize(resource)
 
         ironicclient.node.create.assert_called_with(driver='test',
                                                     properties={'memory_mb': 2048,
@@ -96,7 +96,7 @@ class TestIronicSynchronizer(base.BaseTestCase):
                                 ram=2048,
                                 disk=480),
                             foreign_tracking=dict(ironic='ironic-uuid'))
-        synchronizer.sync_node(resource)
+        synchronizer.synchronize(resource)
 
         ironicclient.node.update.assert_called_with('ironic-uuid', [
             {'op': 'add', 'path': '/driver', 'value': 'test'},

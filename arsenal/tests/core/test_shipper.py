@@ -30,7 +30,7 @@ class TestShipper(base.BaseTestCase):
 
         self.shipper.ship()
 
-        self.synchronizer.sync_node.assert_called_with(sentinel.shizzle)
+        self.synchronizer.synchronize.assert_called_with(sentinel.shizzle)
 
     def test_can_ship_several_resources(self):
         self.datasource.get_resources.return_value = [sentinel.resource1,
@@ -39,7 +39,7 @@ class TestShipper(base.BaseTestCase):
 
         self.shipper.ship()
 
-        self.synchronizer.sync_node.assert_has_calls([
+        self.synchronizer.synchronize.assert_has_calls([
             call(sentinel.resource1),
             call(sentinel.resource2),
             call(sentinel.resource3),
