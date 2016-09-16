@@ -21,7 +21,7 @@ from ironicclient import client
 
 ironicclient = None
 # TODO(wajdi): Move this in to config loader
-if 'TRAVIS' not in os.environ:
+if 'CI' not in os.environ:
     # TODO(wajdi): Make this a real config
     ironicclient = client.get_client(
         "1",
