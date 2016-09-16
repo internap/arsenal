@@ -14,6 +14,7 @@
 import json
 
 from arsenal.core.manager import ResourceNotFound
+from arsenal.core.patch import Replace
 from arsenal.core.resource import Resource
 from arsenal.interfaces.api import Api
 from flask import Flask
@@ -44,6 +45,14 @@ class TestAPI(base.BaseTestCase):
                                           'attributes': {'ironic_driver': 'hello'}
                                       }))
             self.assertEqual(201, result.status_code)
+
+            self.assertDictEqual(
+                json.loads(result.data.decode(result.charset)),
+                {
+                    "uuid": "some-uuid",
+                    "attributes": {"ironic_driver": "hello"}
+                }
+            )
             self.assertIn('Location', result.headers)
             self.assertIn('{}/resources/some-uuid'.format(API_ROOT),
                           result.headers['Location'])
@@ -103,3 +112,66 @@ class TestAPI(base.BaseTestCase):
                 {'uuid': '14', 'attributes': {'ironic_driver': 'yes'}},
                 {'uuid': '15', 'attributes': {'ironic_driver': 'no'}},
             ]}, json.loads(result.data.decode(result.charset)))
+
+    def test_updating_a_resource_returns_the_updated_resource(self):
+        with self.app.test_client() as http_client:
+            resource = Resource(uuid='some-uuid',
+                                attributes={'ironic_driver': 'hello'})
+            self.manager.create_resource.return_value = resource
+
+            result = http_client.post("{}/resources".format(API_ROOT),
+                                      headers=json_content_type,
+                                      data=json.dumps({
+                                          'attributes': {'ironic_driver': 'hello'}
+                                      }))
+            self.assertEqual(201, result.status_code)
+
+            self.assertDictEqual(
+                json.loads(result.data.decode(result.charset)),
+                {
+                    "uuid": "some-uuid",
+                    "attributes": {"ironic_driver": "hello"}
+                }
+            )
+            self.assertIn('Location', result.headers)
+            self.assertIn('{}/resources/some-uuid'.format(API_ROOT),
+                          result.headers['Location'])
+
+            self.manager.create_resource.assert_called_with(
+                Resource(uuid=None, attributes={'ironic_driver': 'hello'}))
+
+            resource.attributes = {'ironic_driver': 'changed'}
+            self.manager.update_resource.return_value = resource
+
+            result = http_client.patch(
+                "{}/resources/some-uuid".format(API_ROOT),
+                headers=json_content_type,
+                data=json.dumps(
+                    [{"value": "changed",
+                      "path": "/attributes/ironic_driver",
+                      "op": "replace"}
+                     ]
+                )
+            )
+
+            self.assertEqual(201, result.status_code)
+            self.assertDictEqual(
+                json.loads(result.data.decode(result.charset)),
+
+                {
+                    "uuid": "some-uuid",
+                    "attributes": {
+                        "ironic_driver": "changed"
+                    }
+                }
+            )
+            self.assertIn('Location', result.headers)
+            self.assertIn('{}/resources/some-uuid'.format(API_ROOT),
+                          result.headers['Location'])
+
+            self.manager.update_resource.assert_called_with(
+                'some-uuid',
+                changes=[
+                    Replace(["attributes", "ironic_driver"], "changed")
+                ]
+            )
