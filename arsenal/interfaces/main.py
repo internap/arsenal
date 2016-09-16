@@ -19,18 +19,14 @@ from arsenal.interfaces.api import Api
 from flask import Flask
 from ironicclient import client
 
-ironicclient = None
-# TODO(wajdi): Move this in to config loader
-if 'TRAVIS' not in os.environ:
-    # TODO(wajdi): Make this a real config
-    ironicclient = client.get_client(
-        "1",
-        os_username="admin",
-        os_password="password",
-        os_tenant_name="admin",
-        os_auth_url="http://172.27.59.42:5000/v2.0/",
-        os_region_name="RegionOne"
-    )
+ironicclient = client.get_client(
+    "1",
+    os_username="admin",
+    os_password="password",
+    os_tenant_name="admin",
+    os_auth_url="http://172.27.59.42:5000/v2.0/",
+    os_region_name="RegionOne"
+)
 
 
 def wire_stuff(app):
