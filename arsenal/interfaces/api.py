@@ -42,7 +42,7 @@ class Api(object):
         request_data = request.json
 
         resource = self.manager.create_resource(
-            Resource(attributes=request_data['attributes']))
+            Resource(type=request_data['type'], attributes=request_data['attributes']))
         response.headers['Location'] = '/v1/resources/{}'.format(resource.uuid)
 
         return response
@@ -75,5 +75,6 @@ class Api(object):
 
 def resource_to_api(resource):
     data = {'uuid': resource.uuid,
+            'type': resource.type,
             'attributes': resource.attributes}
     return data

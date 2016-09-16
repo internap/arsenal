@@ -34,13 +34,14 @@ class TestAPI(base.BaseTestCase):
 
     def test_creating_a_resource_returns_a_location(self):
         with self.app.test_client() as http_client:
-            resource = Resource(uuid='some-uuid',
+            resource = Resource(uuid='some-uuid', type='server',
                                 attributes={'ironic_driver': 'hello'})
             self.manager.create_resource.return_value = resource
 
             result = http_client.post("{}/resources".format(API_ROOT),
                                       headers=json_content_type,
                                       data=json.dumps({
+                                          'type': 'server',
                                           'attributes': {'ironic_driver': 'hello'}
                                       }))
             self.assertEqual(201, result.status_code)
@@ -49,7 +50,7 @@ class TestAPI(base.BaseTestCase):
                           result.headers['Location'])
 
             self.manager.create_resource.assert_called_with(
-                Resource(uuid=None, attributes={'ironic_driver': 'hello'}))
+                Resource(uuid=None, type='server', attributes={'ironic_driver': 'hello'}))
 
     def test_fetching_a_resource(self):
         with self.app.test_client() as http_client:
@@ -57,13 +58,14 @@ class TestAPI(base.BaseTestCase):
 
             self.manager.get_resource.return_value = Resource(
                 uuid=uuid,
+                type='server',
                 attributes=dict(ironic_driver='wow'))
 
             result = http_client.get("{}/resources/{}".format(API_ROOT, uuid),
                                      headers=json_content_type)
             self.assertEqual(200, result.status_code)
             self.assertEqual('application/json', result.content_type)
-            self.assertEqual({'uuid': uuid, 'attributes': {'ironic_driver': 'wow'}},
+            self.assertEqual({'uuid': uuid, 'type': 'server', 'attributes': {'ironic_driver': 'wow'}},
                              json.loads(result.data.decode(result.charset)))
 
             self.manager.get_resource.assert_called_with('%s' % uuid)
@@ -91,8 +93,8 @@ class TestAPI(base.BaseTestCase):
     def test_fetch_all_resources_two_items(self):
         with self.app.test_client() as http_client:
             self.manager.list_resources.return_value = [
-                Resource(uuid='14', attributes=dict(ironic_driver='yes')),
-                Resource(uuid='15', attributes=dict(ironic_driver='no'))
+                Resource(uuid='14', type='server', attributes=dict(ironic_driver='yes')),
+                Resource(uuid='15', type='server', attributes=dict(ironic_driver='no'))
             ]
 
             result = http_client.get("{}/resources".format(API_ROOT),
@@ -100,6 +102,6 @@ class TestAPI(base.BaseTestCase):
             self.assertEqual(200, result.status_code)
             self.assertEqual('application/json', result.content_type)
             self.assertEqual({"resources": [
-                {'uuid': '14', 'attributes': {'ironic_driver': 'yes'}},
-                {'uuid': '15', 'attributes': {'ironic_driver': 'no'}},
+                {'uuid': '14', 'type': 'server', 'attributes': {'ironic_driver': 'yes'}},
+                {'uuid': '15', 'type': 'server', 'attributes': {'ironic_driver': 'no'}},
             ]}, json.loads(result.data.decode(result.charset)))

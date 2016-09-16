@@ -23,7 +23,7 @@ class TestManager(base.BaseTestCase):
         self.datastore = MemoryDatastore()
 
     def test_save_and_load_a_resource(self):
-        resource = Resource("uuid", attributes={'ironic_driver': 'test'})
+        resource = Resource("uuid", type='pdu', attributes={'ironic_driver': 'test'})
         self.datastore.save(resource)
 
         self.assertEqual(resource, self.datastore.load("uuid"))
