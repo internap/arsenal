@@ -16,7 +16,8 @@ from arsenal import Model
 
 
 class Resource(Model):
-    def __init__(self, uuid=None, attributes=None, foreign_tracking=None):
+    def __init__(self, uuid=None, type=None, attributes=None, foreign_tracking=None):
         self.uuid = uuid
+        self.type = type
         self.attributes = attributes or {}
         self.foreign_tracking = foreign_tracking or {}

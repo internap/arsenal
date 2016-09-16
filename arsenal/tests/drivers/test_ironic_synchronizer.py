@@ -20,18 +20,60 @@ from oslotest import base
 
 
 class TestIronicSynchronizer(base.BaseTestCase):
+    def test_ironic_synchronizer_synchronizes_servers(self):
+        ironicclient = mock.Mock()
+        ironicclient.node.create.return_value = Node(None, {'uuid': mock.sentinel.ironic_uuid})
+
+        synchronizer = IronicSynchronizer(ironicclient)
+
+        resource = Resource(type='server',
+                            attributes=dict(
+                                ironic_driver='test',
+                                cpu_count=2,
+                                cpu_cores=4,
+                                ram=2048,
+                                disk=480)
+                            )
+        synchronizer.sync_node(resource)
+
+        ironicclient.node.create.assert_called_with(driver='test',
+                                                    properties={'memory_mb': 2048,
+                                                                'local_gb': 480,
+                                                                'cpus': 8})
+        self.assertEqual(mock.sentinel.ironic_uuid, resource.foreign_tracking.get('ironic'))
+
+    def test_ironic_synchronizer_doesnt_synchronizes_any_resource_type(self):
+        ironicclient = mock.Mock()
+        ironicclient.node.create.return_value = Node(None, {'uuid': mock.sentinel.ironic_uuid})
+
+        synchronizer = IronicSynchronizer(ironicclient)
+
+        resource = Resource(type='pdu',
+                            attributes=dict(
+                                ironic_driver='test',
+                                hostname='pdu.invalid',
+                                username='user',
+                                password='pass',
+                                community='snmp')
+                            )
+        synchronizer.sync_node(resource)
+
+        self.assertEqual(False, ironicclient.node.create.called)
+
     def test_ironic_synchronizer_synchronizes_a_node_and_store_its_uuid(self):
         ironicclient = mock.Mock()
         ironicclient.node.create.return_value = Node(None, {'uuid': mock.sentinel.ironic_uuid})
 
         synchronizer = IronicSynchronizer(ironicclient)
 
-        resource = Resource(attributes=dict(
-            ironic_driver='test',
-            cpu_count=2,
-            cpu_cores=4,
-            ram=2048,
-            disk=480))
+        resource = Resource(type='server',
+                            attributes=dict(
+                                ironic_driver='test',
+                                cpu_count=2,
+                                cpu_cores=4,
+                                ram=2048,
+                                disk=480)
+                            )
         synchronizer.sync_node(resource)
 
         ironicclient.node.create.assert_called_with(driver='test',

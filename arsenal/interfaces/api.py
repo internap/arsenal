@@ -46,8 +46,8 @@ class Api(object):
         request_data = request.json
 
         resource = self.manager.create_resource(
-            Resource(attributes=request_data['attributes']))
-
+            Resource(type=request_data['type'],
+                     attributes=request_data['attributes']))
         response = make_response(json.dumps(resource_to_api(resource)), 201)
         response.headers['Location'] = '/v1/resources/{}'.format(resource.uuid)
 
@@ -100,5 +100,6 @@ def request_to_patch_operation(request):
 
 def resource_to_api(resource):
     data = {'uuid': resource.uuid,
+            'type': resource.type,
             'attributes': resource.attributes}
     return data

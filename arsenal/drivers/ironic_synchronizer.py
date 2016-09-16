@@ -18,6 +18,9 @@ class IronicSynchronizer(object):
         self.ironicclient = ironicclient
 
     def sync_node(self, resource):
+        if 'server' not in resource.type:
+            return
+
         ironic_node = self.ironicclient.node.create(
             driver=resource.attributes['ironic_driver'],
             properties={'memory_mb': resource.attributes['ram'],
