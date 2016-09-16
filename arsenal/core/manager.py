@@ -35,12 +35,13 @@ class Manager(object):
         try:
             return self.datastore.load(resource_uuid)
         except adapters.ResourceNotFound as e:
-            raise ResourceNotFound() from e
+            raise ResourceNotFound(e)
 
     def synchronize_resource(self, resource_uuid):
         resource = self.datastore.load(resource_uuid)
         self.resource_synchronizer.sync_node(resource)
         self.datastore.save(resource)
+
 
 class ResourceNotFound(Exception):
     pass

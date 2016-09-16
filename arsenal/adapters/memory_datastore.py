@@ -26,7 +26,7 @@ class MemoryDatastore(object):
         try:
             return self.resources[uuid]
         except KeyError as e:
-            raise adapters.ResourceNotFound() from e
+            raise adapters.ResourceNotFound(e)
 
     def load_all(self):
         return list(self.resources.values())

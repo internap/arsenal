@@ -6,4 +6,4 @@ python:
 install:
   - pip install tox
 
-script: tox -e py34
+script: tox -e py34,pep8
