@@ -18,5 +18,9 @@ class IronicSynchronizer(object):
         self.ironicclient = ironicclient
 
     def sync_node(self, resource):
-        ironic_node = self.ironicclient.node.create(driver=resource.attributes['ironic_driver'])
+        ironic_node = self.ironicclient.node.create(
+            driver=resource.attributes['ironic_driver'],
+            properties={'memory_mb': resource.attributes['ram'],
+                        'local_gb': resource.attributes['disk'],
+                        'cpus': resource.attributes['cpu_count'] * resource.attributes['cpu_cores']})
         resource.foreign_tracking['ironic'] = ironic_node.uuid

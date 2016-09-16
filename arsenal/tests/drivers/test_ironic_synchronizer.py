@@ -26,8 +26,16 @@ class TestIronicSynchronizer(base.BaseTestCase):
 
         synchronizer = IronicSynchronizer(ironicclient)
 
-        resource = Resource(attributes=dict(ironic_driver='test'))
+        resource = Resource(attributes=dict(
+            ironic_driver='test',
+            cpu_count=2,
+            cpu_cores=4,
+            ram=2048,
+            disk=480))
         synchronizer.sync_node(resource)
 
-        ironicclient.node.create.assert_called_with(driver='test')
+        ironicclient.node.create.assert_called_with(driver='test',
+                                                    properties={'memory_mb': 2048,
+                                                                'local_gb': 480,
+                                                                'cpus': 8})
         self.assertEqual(mock.sentinel.ironic_uuid, resource.foreign_tracking.get('ironic'))
