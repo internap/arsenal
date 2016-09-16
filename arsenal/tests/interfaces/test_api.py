@@ -17,7 +17,7 @@ from arsenal.core.manager import ResourceNotFound
 from arsenal.core.patch import Replace
 from arsenal.core.resource import Resource
 from arsenal.interfaces.api import Api
-from flask import Flask
+from arsenal.interfaces.main import get_app
 from mock import mock
 from oslotest import base
 
@@ -29,8 +29,8 @@ json_content_type = {"content-type": "application/json"}
 class TestAPI(base.BaseTestCase):
     def setUp(self):
         super().setUp()
-        self.app = Flask("test")
         self.manager = mock.Mock()
+        self.app = get_app()
         Api(self.app, manager=self.manager)
 
     def test_creating_a_resource_returns_a_location(self):
@@ -182,3 +182,16 @@ class TestAPI(base.BaseTestCase):
                     Replace(["attributes", "ironic_driver"], "changed")
                 ]
             )
+
+    def test_fetch_all_accept_html(self):
+        with self.app.test_client() as http_client:
+            self.manager.list_resources.return_value = [
+                Resource(uuid='14', attributes=dict(ironic_driver='yes')),
+                Resource(uuid='15', attributes=dict(ironic_driver='no'))
+            ]
+
+            result = http_client.get("{}/resources".format(API_ROOT),
+                                     headers={'Accept': 'text/html'})
+
+            self.assertEqual(200, result.status_code)
+            self.assertIn('text/html', result.content_type)

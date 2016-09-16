@@ -18,6 +18,7 @@ from arsenal.core.patch import Replace, Create, Remove
 from arsenal.core.resource import Resource
 from flask import make_response
 from flask import request
+from flask import render_template
 
 
 class Api(object):
@@ -66,14 +67,19 @@ class Api(object):
     def get_all_resources(self):
         resources = self.manager.list_resources()
 
-        api_response = []
-        for resource in resources:
-            api_response.append(resource_to_api(resource))
+        if 'text/html' in request.accept_mimetypes:
+            response = make_response('', 200)
+            response.headers['Content-Type'] = 'text/html'
+            return render_template('resources.html', resources=resources)
+        else:
+            api_response = []
+            for resource in resources:
+                api_response.append(resource_to_api(resource))
 
-        response = make_response(json.dumps({"resources": api_response}), 200)
-        response.headers['Content-Type'] = 'application/json'
+            response = make_response(json.dumps({"resources": api_response}), 200)
+            response.headers['Content-Type'] = 'application/json'
 
-        return response
+            return response
 
     def get_resource(self, uuid):
         try:
@@ -99,7 +105,6 @@ def request_to_patch_operation(request):
 
 
 def resource_to_api(resource):
-    data = {'uuid': resource.uuid,
+    return {'uuid': str(resource.uuid),
             'type': resource.type,
             'attributes': resource.attributes}
-    return data

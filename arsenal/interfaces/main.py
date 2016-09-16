@@ -38,7 +38,13 @@ def wire_stuff(app):
     # TODO(lindycoder): put a real thing in there if you got the TEST for it!
     Api(app, Manager(datastore, IronicSynchronizer(ironicclient)))
 
-app = Flask(__name__)
-app.config['PROPAGATE_EXCEPTIONS'] = True
+
+def get_app():
+    app = Flask(__name__)
+    app.config['PROPAGATE_EXCEPTIONS'] = True
+    return app
+
+
+app = get_app()
 
 wire_stuff(app)
