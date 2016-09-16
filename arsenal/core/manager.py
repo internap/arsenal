@@ -18,9 +18,9 @@ from arsenal import adapters
 
 
 class Manager(object):
-    def __init__(self, datastore, resource_synchronizer):
+    def __init__(self, datastore, resource_synchronizers):
         self.datastore = datastore
-        self.resource_synchronizer = resource_synchronizer
+        self.resource_synchronizers = resource_synchronizers
 
     def create_resource(self, resource):
         resource.uuid = str(uuid.uuid4())
@@ -40,7 +40,8 @@ class Manager(object):
 
     def synchronize_resource(self, resource_uuid):
         resource = self.datastore.load(resource_uuid)
-        self.resource_synchronizer.sync_node(resource)
+        for sync in self.resource_synchronizers:
+            sync.sync_node(resource)
         self.datastore.save(resource)
 
     def update_resource(self, resource_uuid, changes):

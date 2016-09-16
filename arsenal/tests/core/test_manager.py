@@ -23,8 +23,10 @@ class TestManager(base.BaseTestCase):
     def setUp(self):
         super().setUp()
         self.datastore = mock.Mock()
-        self.resource_synchronizer = mock.Mock()
-        self.manager = Manager(datastore=self.datastore, resource_synchronizer=self.resource_synchronizer)
+        self.resource_synchronizer1 = mock.Mock()
+        self.resource_synchronizer2 = mock.Mock()
+        self.manager = Manager(datastore=self.datastore, resource_synchronizers=[self.resource_synchronizer1,
+                                                                                 self.resource_synchronizer2])
 
     @mock.patch('uuid.uuid4')
     def test_creating_one_resource_returns_it_with_a_uuid_and_saves_it(self, uuid4_mock):
@@ -81,14 +83,19 @@ class TestManager(base.BaseTestCase):
     def test_synchronizing_one_resource_saves_changes_by_the_synchronizer(self):
         origin_resource = Resource(uuid='my-uuid')
         self.datastore.load.return_value = origin_resource
-        self.resource_synchronizer.sync_node.side_effect = \
+        self.resource_synchronizer1.sync_node.side_effect = \
             lambda r: r.foreign_tracking.update({'ironic': 'ironic-uuid'})
+        self.resource_synchronizer2.sync_node.side_effect = \
+            lambda r: r.attributes.update({'shizzle': 'whizzle'})
 
         self.manager.synchronize_resource('my-uuid')
 
-        self.resource_synchronizer.sync_node.assert_called_with(origin_resource)
+        self.resource_synchronizer1.sync_node.assert_called_with(origin_resource)
+        self.resource_synchronizer2.sync_node.assert_called_with(origin_resource)
         self.datastore.save.assert_called_with(
-            Resource(uuid='my-uuid', foreign_tracking={'ironic': 'ironic-uuid'}))
+            Resource(uuid='my-uuid',
+                     attributes={'shizzle': 'whizzle'},
+                     foreign_tracking={'ironic': 'ironic-uuid'}))
 
     def test_update_resource(self):
         origin_resource = Resource(uuid='my-uuid')
@@ -98,7 +105,8 @@ class TestManager(base.BaseTestCase):
 
         self.manager.update_resource('my-uuid', [change])
         self.datastore.save.assert_called_with(origin_resource)
-        self.resource_synchronizer.sync_node.assert_called_with(origin_resource)
+        self.resource_synchronizer1.sync_node.assert_called_with(origin_resource)
+        self.resource_synchronizer2.sync_node.assert_called_with(origin_resource)
 
     def test_update_resource_with_relations_sync_the_relations(self):
         self.manager.synchronize_resource = mock.Mock()

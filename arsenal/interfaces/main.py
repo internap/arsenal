@@ -35,7 +35,7 @@ except Exception:
 def wire_stuff(app):
     datastore = MemoryDatastore()
     # TODO(lindycoder): put a real thing in there if you got the TEST for it!
-    Api(app, Manager(datastore, IronicSynchronizer(ironicclient)))
+    Api(app, Manager(datastore, [IronicSynchronizer(ironicclient)]))
 
 
 def get_app():
