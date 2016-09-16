@@ -42,7 +42,7 @@ class Api(object):
         request_data = request.json
 
         resource = self.manager.create_resource(
-            Resource(ironic_driver=request_data['ironic_driver']))
+            Resource(attributes=request_data['attributes']))
         response.headers['Location'] = '/v1/resources/{}'.format(resource.uuid)
 
         return response
@@ -74,6 +74,6 @@ class Api(object):
 
 
 def resource_to_api(resource):
-    data = {'ironic_driver': resource.ironic_driver,
-            'uuid': resource.uuid}
+    data = {'uuid': resource.uuid,
+            'attributes': resource.attributes}
     return data

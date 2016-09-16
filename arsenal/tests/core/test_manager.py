@@ -29,7 +29,7 @@ class TestManager(base.BaseTestCase):
     @mock.patch('uuid.uuid4')
     def test_creating_one_resource_returns_it_with_a_uuid_and_saves_it(self, uuid4_mock):
         uuid4_mock.return_value = 'new-uuid'
-        origin_resource = Resource(uuid=None, ironic_driver='hello')
+        origin_resource = Resource(uuid=None, attributes={})
         self.manager.synchronize_resource = mock.Mock()
 
         created_resource = self.manager.create_resource(origin_resource)
@@ -39,7 +39,7 @@ class TestManager(base.BaseTestCase):
         self.manager.synchronize_resource.assert_called_with('new-uuid')
 
     def test_fetching_one_resource_returns_it_from_the_datastore(self):
-        resource = Resource(uuid=mock.sentinel.a_uuid, ironic_driver='hello')
+        resource = Resource(uuid=mock.sentinel.a_uuid, attributes={})
         self.datastore.load.return_value = resource
 
         loaded_resource = self.manager.get_resource(mock.sentinel.a_uuid)
@@ -53,8 +53,8 @@ class TestManager(base.BaseTestCase):
         self.assertRaises(manager.ResourceNotFound, self.manager.get_resource, 'a uuid')
 
     def test_fetching_all_resources_returns_it_from_the_datastore(self):
-        resourceA = Resource(uuid=mock.sentinel.a_uuid, ironic_driver='hello')
-        resourceB = Resource(uuid=mock.sentinel.another_uuid, ironic_driver='hello')
+        resourceA = Resource(uuid=mock.sentinel.a_uuid, attributes={})
+        resourceB = Resource(uuid=mock.sentinel.another_uuid, attributes={})
         self.datastore.load_all.return_value = [resourceA, resourceB]
 
         loaded_resources = self.manager.list_resources()
