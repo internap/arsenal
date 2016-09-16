@@ -14,6 +14,7 @@
 import json
 
 from arsenal.core.manager import ResourceNotFound
+from arsenal.core.patch import Replace, Create, Remove
 from arsenal.core.resource import Resource
 from flask import make_response
 from flask import request
@@ -29,6 +30,10 @@ class Api(object):
                          view_func=self.create_resource,
                          methods=['POST'])
 
+        app.add_url_rule('/v1/resources/<uuid>',
+                         view_func=self.update_resource,
+                         methods=['PATCH'])
+
         app.add_url_rule('/v1/resources',
                          view_func=self.get_all_resources,
                          methods=['GET'])
@@ -38,11 +43,22 @@ class Api(object):
                          methods=['GET'])
 
     def create_resource(self):
-        response = make_response('', 201)
         request_data = request.json
 
         resource = self.manager.create_resource(
             Resource(attributes=request_data['attributes']))
+
+        response = make_response(json.dumps(resource_to_api(resource)), 201)
+        response.headers['Location'] = '/v1/resources/{}'.format(resource.uuid)
+
+        return response
+
+    def update_resource(self, uuid):
+        request_data = request.json
+        changes = request_to_patch_operation(request_data)
+
+        resource = self.manager.update_resource(uuid, changes=changes)
+        response = make_response(json.dumps(resource_to_api(resource)), 201)
         response.headers['Location'] = '/v1/resources/{}'.format(resource.uuid)
 
         return response
@@ -71,6 +87,15 @@ class Api(object):
         response.headers['Content-Type'] = 'application/json'
 
         return response
+
+
+def request_to_patch_operation(request):
+    patch_operations = {
+        'replace': Replace,
+        'add': Create,
+        'remove': Remove
+    }
+    return [patch_operations.get(change['op'])(change['path'].split('/')[1:], change['value']) for change in request]
 
 
 def resource_to_api(resource):
