@@ -26,6 +26,7 @@ class Manager(object):
         resource.uuid = str(uuid.uuid4())
         self.datastore.save(resource)
         self.synchronize_resource(resource.uuid)
+        self._synchronize_relations(resource)
         return resource
 
     def list_resources(self):
@@ -51,7 +52,12 @@ class Manager(object):
                 raise InvalidUpdate(e)
         self.datastore.save(resource)
         self.synchronize_resource(resource.uuid)
+        self._synchronize_relations(resource)
         return resource
+
+    def _synchronize_relations(self, resource):
+        for connector, relation in resource.relations.items():
+            self.synchronize_resource(relation.uuid)
 
 
 class ResourceNotFound(Exception):
