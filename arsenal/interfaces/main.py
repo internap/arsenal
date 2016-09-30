@@ -13,8 +13,6 @@
 # under the License.
 from arsenal.adapters.memory_datastore import MemoryDatastore
 from arsenal.core.manager import Manager
-from arsenal.drivers.ironic_pdu_synchronizer import IronicPduSynchronizer
-from arsenal.drivers.ironic_synchronizer import IronicSynchronizer
 from arsenal.interfaces.api import Api
 from flask import Flask
 from ironicclient import client
@@ -36,9 +34,7 @@ ironicclient = Proxy(make_ironicclient)
 
 def wire_stuff(app):
     datastore = MemoryDatastore()
-    # TODO(lindycoder): put a real thing in there if you got the TEST for it!
-    Api(app, Manager(datastore, [IronicSynchronizer(ironicclient),
-                                 IronicPduSynchronizer(ironicclient)]))
+    Api(app, Manager(datastore, []))
 
 
 def get_app():
