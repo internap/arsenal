@@ -34,6 +34,9 @@ class ResourceTypeFactory(object):
 
         return self.resource_types[name]
 
+    def list(self):
+        return [v for k, v in sorted(self.resource_types.items())]
+
 
 class UnknownResourceType(Exception):
     pass
