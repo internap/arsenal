@@ -18,10 +18,11 @@ from arsenal.drivers.ironic_synchronizer import IronicSynchronizer
 from arsenal.interfaces.api import Api
 from flask import Flask
 from ironicclient import client
+from lazy_object_proxy import Proxy
 
 
-try:
-    ironicclient = client.get_client(
+def make_ironicclient():
+    return client.get_client(
         "1",
         os_username="admin",
         os_password="password",
@@ -29,8 +30,8 @@ try:
         os_auth_url="http://172.27.59.42:5000/v2.0/",
         os_region_name="RegionOne"
     )
-except Exception:
-    ironicclient = None
+
+ironicclient = Proxy(make_ironicclient)
 
 
 def wire_stuff(app):
