@@ -12,13 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import subprocess
-import unittest
-
-import sys
-
 import os
 import random
+import subprocess
+import sys
+
 import requests
 import requests.exceptions
 from decorator import contextmanager
@@ -26,7 +24,6 @@ from oslotest import base
 from retry.api import retry_call
 
 
-@unittest.skip
 class TestMain(base.BaseTestCase):
 
     def test_application_is_starting(self):
