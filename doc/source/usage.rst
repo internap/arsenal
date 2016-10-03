@@ -2,6 +2,6 @@
 Usage
 ========
 
-To use arsenal in a project::
+To use cellar in a project::
 
-    import arsenal
+    import cellar

@@ -11,15 +11,22 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from cellar import adapters
 
-from arsenal import Model
 
+class MemoryDatastore(object):
 
-class Resource(Model):
-    def __init__(self, uuid=None, type=None, attributes=None,
-                 foreign_tracking=None, relations=None):
-        self.uuid = uuid
-        self.type = type
-        self.attributes = attributes or {}
-        self.foreign_tracking = foreign_tracking or {}
-        self.relations = relations or {}
+    def __init__(self):
+        self.resources = {}
+
+    def save(self, resource):
+        self.resources[resource.uuid] = resource
+
+    def load(self, uuid):
+        try:
+            return self.resources[uuid]
+        except KeyError as e:
+            raise adapters.ResourceNotFound(e)
+
+    def load_all(self):
+        return list(self.resources.values())

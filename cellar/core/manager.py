@@ -14,7 +14,7 @@
 
 import uuid
 
-from arsenal import adapters
+from cellar import adapters
 
 
 class Manager(object):

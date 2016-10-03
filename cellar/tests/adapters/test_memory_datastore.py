@@ -11,9 +11,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from arsenal import adapters
-from arsenal.adapters.memory_datastore import MemoryDatastore
-from arsenal.core.resource import Resource
+from cellar import adapters
+from cellar.adapters.memory_datastore import MemoryDatastore
+from cellar.core.resource import Resource
 from oslotest import base
 
 

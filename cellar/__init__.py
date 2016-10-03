@@ -16,7 +16,7 @@ import pbr.version
 
 
 __version__ = pbr.version.VersionInfo(
-    'arsenal').version_string()
+    'cellar').version_string()
 
 
 class Model(object):

@@ -13,9 +13,9 @@
 # under the License.
 import json
 
-from arsenal.core.manager import ResourceNotFound, InvalidUpdate
-from arsenal.core.patch import Replace, Create, Remove
-from arsenal.core.resource import Resource
+from cellar.core.manager import ResourceNotFound, InvalidUpdate
+from cellar.core.patch import Replace, Create, Remove
+from cellar.core.resource import Resource
 from flask import make_response
 from flask import request
 from flask import render_template
