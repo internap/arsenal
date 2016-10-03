@@ -11,6 +11,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from oslo_log import log as logging
+
+LOG = logging.getLogger(__name__)
 
 
 class ResourceType(object):
@@ -23,6 +26,8 @@ class ResourceTypeFactory(object):
         self.resource_types = {}
 
     def register(self, name):
+        LOG.info('Registering {} as a new resource type'.format(name))
+
         if name in self.resource_types:
             raise ResourceTypeAlreadyExist("Resource type already defined: {}".format(name))
 

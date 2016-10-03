@@ -23,11 +23,15 @@ from flask import Flask
 from ironicclient import client
 from lazy_object_proxy import Proxy
 from oslo_config import cfg
+from oslo_log import log as logging
 
 cfg.CONF.register_opts([
     cfg.StrOpt('type_definition_file', default="cellar.conf",
                help="The type definition file to use"),
 ])
+
+logging.register_options(cfg.CONF)
+LOG = logging.getLogger(__name__)
 
 
 def make_ironicclient():
@@ -46,6 +50,7 @@ ironicclient = Proxy(make_ironicclient)
 def wire_stuff(app):
     resource_type_factory = ResourceTypeFactory()
 
+    LOG.info("Configuring the resource factory from {}".format(cfg.CONF.type_definition_file))
     resource_type_yaml_parser = ResourceTypeYamlParser(resource_type_factory)
     resource_type_yaml_parser.configure_factory_from(cfg.CONF.find_file(cfg.CONF.type_definition_file))
 
