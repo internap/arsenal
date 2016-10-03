@@ -11,8 +11,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from arsenal.core.patch import Create, Replace, Remove
-from arsenal.core.resource import Resource
+from cellar.core.patch import Create, Replace, Remove
+from cellar.core.resource import Resource
 from oslotest import base
 
 

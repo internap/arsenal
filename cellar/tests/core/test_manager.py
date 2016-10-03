@@ -11,10 +11,10 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from arsenal import adapters
-from arsenal.core import manager
-from arsenal.core.manager import Manager, InvalidUpdate
-from arsenal.core.resource import Resource
+from cellar import adapters
+from cellar.core import manager
+from cellar.core.manager import Manager, InvalidUpdate
+from cellar.core.resource import Resource
 import mock
 from oslotest import base
 

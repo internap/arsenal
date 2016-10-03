@@ -11,9 +11,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from arsenal.adapters.memory_datastore import MemoryDatastore
-from arsenal.core.manager import Manager
-from arsenal.interfaces.api import Api
+from cellar.adapters.memory_datastore import MemoryDatastore
+from cellar.core.manager import Manager
+from cellar.interfaces.api import Api
 from flask import Flask
 from ironicclient import client
 from lazy_object_proxy import Proxy

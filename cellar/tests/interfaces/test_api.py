@@ -13,12 +13,12 @@
 # under the License.
 import json
 
-from arsenal.core.manager import ResourceNotFound, InvalidUpdate
-from arsenal.core.patch import Replace
-from arsenal.core.resource import Resource
-from arsenal.core.resource_type import ResourceTypeFactory
-from arsenal.interfaces.api import Api
-from arsenal.interfaces.main import get_app
+from cellar.core.manager import ResourceNotFound, InvalidUpdate
+from cellar.core.patch import Replace
+from cellar.core.resource import Resource
+from cellar.core.resource_type import ResourceTypeFactory
+from cellar.interfaces.api import Api
+from cellar.interfaces.main import get_app
 from mock import mock
 from oslotest import base
 

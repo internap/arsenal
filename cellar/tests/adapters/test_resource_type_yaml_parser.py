@@ -14,8 +14,8 @@
 import tempfile
 import textwrap
 
-from arsenal.adapters.resource_type_yaml_parser import ResourceTypeYamlParser
-from arsenal.core.resource_type import ResourceTypeFactory
+from cellar.adapters.resource_type_yaml_parser import ResourceTypeYamlParser
+from cellar.core.resource_type import ResourceTypeFactory
 from oslotest import base
 
 

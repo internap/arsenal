@@ -4,9 +4,9 @@ Installation
 
 At the command line::
 
-    $ pip install arsenal
+    $ pip install cellar
 
 Or, if you have virtualenvwrapper installed::
 
-    $ mkvirtualenv arsenal
-    $ pip install arsenal
+    $ mkvirtualenv cellar
+    $ pip install cellar

@@ -50,7 +50,7 @@ def app_running():
     port = random.randint(30000, 60000)
     env = os.environ.copy()
     env.update(dict(
-        FLASK_APP="arsenal.interfaces.main:app"
+        FLASK_APP="cellar.interfaces.main:app"
     ))
     p = subprocess.Popen([sys.executable,
                           _get_entry_point_path('flask'),

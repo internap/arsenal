@@ -1,6 +1,6 @@
 [run]
 branch = True
-source = arsenal
+source = cellar
 
 [report]
 ignore_errors = True
