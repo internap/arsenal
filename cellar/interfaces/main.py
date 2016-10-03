@@ -11,12 +11,23 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+import sys
+
 from cellar.adapters.memory_datastore import MemoryDatastore
+from cellar.adapters.resource_type_yaml_parser import ResourceTypeYamlParser
 from cellar.core.manager import Manager
+from cellar.core.resource_type import ResourceTypeFactory
 from cellar.interfaces.api import Api
 from flask import Flask
 from ironicclient import client
 from lazy_object_proxy import Proxy
+from oslo_config import cfg
+
+cfg.CONF.register_opts([
+    cfg.StrOpt('type_definition_file', default="cellar.conf",
+               help="The type definition file to use"),
+])
 
 
 def make_ironicclient():
@@ -33,8 +44,15 @@ ironicclient = Proxy(make_ironicclient)
 
 
 def wire_stuff(app):
+    resource_type_factory = ResourceTypeFactory()
+
+    resource_type_yaml_parser = ResourceTypeYamlParser(resource_type_factory)
+    resource_type_yaml_parser.configure_factory_from(cfg.CONF.find_file(cfg.CONF.type_definition_file))
+
     datastore = MemoryDatastore()
-    Api(app, Manager(datastore, []))
+    Api(app,
+        manager=Manager(datastore, []),
+        resource_type_factory=resource_type_factory)
 
 
 def get_app():
@@ -45,4 +63,14 @@ def get_app():
 
 app = get_app()
 
-wire_stuff(app)
+
+def run():
+    cfg.CONF.register_cli_opt(cfg.IntOpt('port', metavar='PORT', short='p', help="Port to run on"))
+    cfg.CONF(sys.argv[1:])
+
+    wire_stuff(app)
+    app.run(port=cfg.CONF.port)
+
+
+if __name__ == "__main__":
+    app.run()

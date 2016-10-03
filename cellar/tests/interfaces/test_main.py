@@ -11,7 +11,6 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
 import os
 import random
 import subprocess
@@ -19,6 +18,7 @@ import sys
 
 import requests
 import requests.exceptions
+from cellar.tests import ROOT_DIR
 from decorator import contextmanager
 from oslotest import base
 from retry.api import retry_call
@@ -27,37 +27,35 @@ from retry.api import retry_call
 class TestMain(base.BaseTestCase):
 
     def test_application_is_starting(self):
-        with app_running() as port:
+        with app_running("cellar.test.conf") as port:
             def test():
-                r = requests.get("http://localhost:{}".format(port))
-                self.assertEqual(404, r.status_code)
+                r = requests.get("http://localhost:{}/v1/resource-types".format(port))
+                self.assertEqual(200, r.status_code)
+                return r
 
-            retry_call(test, tries=50, delay=0.1,
-                       exceptions=requests.exceptions.ConnectionError)
+            result = retry_call(test, tries=50, delay=0.1,
+                                exceptions=requests.exceptions.ConnectionError)
 
-    def test_application_serving_the_api(self):
-        with app_running() as port:
-            def test():
-                r = requests.post("http://localhost:{}/v1/resources".format(port))
-                self.assertEqual(500, r.status_code)
-
-            retry_call(test, tries=50, delay=0.1,
-                       exceptions=requests.exceptions.ConnectionError)
+            self.assertEqual({
+                "resource_types": [
+                    {"name": "server"},
+                    {"name": "switch"}
+                ]
+            }, result.json())
 
 
 @contextmanager
-def app_running():
+def app_running(config_file):
     port = random.randint(30000, 60000)
     env = os.environ.copy()
-    env.update(dict(
-        FLASK_APP="cellar.interfaces.main:app"
-    ))
     p = subprocess.Popen([sys.executable,
-                          _get_entry_point_path('flask'),
-                          'run',
+                          _get_entry_point_path('cellar'),
                           '--port',
-                          str(port)],
-                         env=env)
+                          str(port),
+                          '--config-file',
+                          os.path.join(ROOT_DIR, config_file)
+                          ],
+                         env=env, cwd=ROOT_DIR)
 
     try:
         yield port
