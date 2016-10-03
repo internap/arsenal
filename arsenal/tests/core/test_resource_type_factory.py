@@ -35,3 +35,14 @@ class TestResourceTypeFactory(base.BaseTestCase):
         self.factory.register("resource_type_name")
 
         self.assertRaises(ResourceTypeAlreadyExist, self.factory.register, "resource_type_name")
+
+    def test_returns_all_registered_resource_types(self):
+        self.factory.register("C")
+        self.factory.register("B")
+        self.factory.register("A")
+
+        resource_type_list = self.factory.list()
+
+        self.assertEqual(resource_type_list[0].name, "A")
+        self.assertEqual(resource_type_list[1].name, "B")
+        self.assertEqual(resource_type_list[2].name, "C")

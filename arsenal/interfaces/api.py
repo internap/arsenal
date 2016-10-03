@@ -22,10 +22,11 @@ from flask import render_template
 
 
 class Api(object):
-    def __init__(self, app, manager=None):
+    def __init__(self, app, manager=None, resource_type_factory=None):
         super().__init__()
 
         self.manager = manager
+        self.resource_type_factory = resource_type_factory
 
         app.add_url_rule('/v1/resources',
                          view_func=self.create_resource,
@@ -45,6 +46,10 @@ class Api(object):
 
         app.add_url_rule('/v1/resources/<uuid>',
                          view_func=self.get_resource,
+                         methods=['GET'])
+
+        app.add_url_rule('/v1/resource-types',
+                         view_func=self.get_all_resource_types,
                          methods=['GET'])
 
     def create_resource(self):
@@ -105,6 +110,17 @@ class Api(object):
 
         return response
 
+    def get_all_resource_types(self):
+        resource_types = self.resource_type_factory.list()
+
+        api_response = [resource_type_to_api(resource_type)
+                        for resource_type in resource_types]
+
+        response = make_response(json.dumps({"resource_types": api_response}), 200)
+        response.headers['Content-Type'] = 'application/json'
+
+        return response
+
     def _to_relations(self, raw_relations):
         return {k: self.manager.get_resource(v)
                 for k, v in raw_relations.items()}
@@ -125,3 +141,7 @@ def resource_to_api(resource):
             'attributes': resource.attributes,
             'relations': {k: v.uuid
                           for k, v in resource.relations.items()}}
+
+
+def resource_type_to_api(resource_type):
+    return {'name': resource_type.name}

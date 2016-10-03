@@ -16,6 +16,7 @@ import json
 from arsenal.core.manager import ResourceNotFound, InvalidUpdate
 from arsenal.core.patch import Replace
 from arsenal.core.resource import Resource
+from arsenal.core.resource_type import ResourceTypeFactory
 from arsenal.interfaces.api import Api
 from arsenal.interfaces.main import get_app
 from mock import mock
@@ -30,8 +31,9 @@ class TestAPI(base.BaseTestCase):
     def setUp(self):
         super().setUp()
         self.manager = mock.Mock()
+        self.resource_type_factory = ResourceTypeFactory()
         self.app = get_app()
-        Api(self.app, manager=self.manager)
+        Api(self.app, manager=self.manager, resource_type_factory=self.resource_type_factory)
 
     def test_creating_a_resource_returns_a_location(self):
         with self.app.test_client() as http_client:
@@ -216,6 +218,21 @@ class TestAPI(base.BaseTestCase):
             )
 
             self.assertEqual(400, result.status_code)
+
+    def test_listing_all_supported_resource_types(self):
+        self.resource_type_factory.register("resource_type_A")
+        self.resource_type_factory.register("resource_type_B")
+
+        with self.app.test_client() as http_client:
+            result = http_client.get("{}/resource-types".format(API_ROOT))
+
+        self.assertEqual(200, result.status_code)
+        self.assertEqual({
+            "resource_types": [
+                {"name": "resource_type_A"},
+                {"name": "resource_type_B"}
+            ]
+        }, json.loads(result.data.decode(result.charset)))
 
     def test_fetch_all_accept_html(self):
         with self.app.test_client() as http_client:
