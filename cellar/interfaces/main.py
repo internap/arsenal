@@ -14,7 +14,6 @@
 
 import sys
 
-from cellar.adapters.memory_datastore import MemoryDatastore
 from cellar.adapters.resource_type_yaml_parser import ResourceTypeYamlParser
 from cellar.core.manager import Manager
 from cellar.core.resource_type import ResourceTypeFactory
@@ -24,10 +23,13 @@ from ironicclient import client
 from lazy_object_proxy import Proxy
 from oslo_config import cfg
 from oslo_log import log as logging
+from stevedore import driver
 
 cfg.CONF.register_opts([
     cfg.StrOpt('type_definition_file', default="cellar.conf",
                help="The type definition file to use"),
+    cfg.StrOpt('datastore', default="memory",
+               help="The datastore type to use")
 ])
 
 logging.register_options(cfg.CONF)
@@ -54,7 +56,11 @@ def wire_stuff(app):
     resource_type_yaml_parser = ResourceTypeYamlParser(resource_type_factory)
     resource_type_yaml_parser.configure_factory_from(cfg.CONF.find_file(cfg.CONF.type_definition_file))
 
-    datastore = MemoryDatastore()
+    datastore = driver.DriverManager(
+        'cellar.datastores',
+        cfg.CONF.datastore,
+        invoke_on_load=True).driver
+
     Api(app,
         manager=Manager(datastore, []),
         resource_type_factory=resource_type_factory)
