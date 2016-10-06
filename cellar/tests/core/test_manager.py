@@ -11,11 +11,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import mock
 from cellar import adapters
 from cellar.core import manager
 from cellar.core.manager import Manager, InvalidUpdate
 from cellar.core.resource import Resource
-import mock
 from oslotest import base
 
 
@@ -31,10 +31,9 @@ class TestManager(base.BaseTestCase):
     @mock.patch('uuid.uuid4')
     def test_creating_one_resource_returns_it_with_a_uuid_and_saves_it(self, uuid4_mock):
         uuid4_mock.return_value = 'new-uuid'
-        origin_resource = Resource(uuid=None, type='switch', attributes={})
         self.manager.synchronize_resource = mock.Mock()
 
-        created_resource = self.manager.create_resource(origin_resource)
+        created_resource = self.manager.create_resource(Resource())
 
         self.assertEqual('new-uuid', created_resource.uuid)
         self.datastore.save.assert_called_with(created_resource)
@@ -43,8 +42,7 @@ class TestManager(base.BaseTestCase):
     @mock.patch('uuid.uuid4')
     def test_creating_one_resource_with_relations_sync_the_relations(self, uuid4_mock):
         uuid4_mock.return_value = 'new-uuid'
-        origin_resource = Resource(uuid=None, type='switch', attributes={},
-                                   relations={"port 1": Resource("uuid1")})
+        origin_resource = Resource(uuid=None, relations={"port 1": Resource("uuid1")})
 
         self.manager.synchronize_resource = mock.Mock()
 
@@ -57,7 +55,7 @@ class TestManager(base.BaseTestCase):
         ], any_order=True)
 
     def test_fetching_one_resource_returns_it_from_the_datastore(self):
-        resource = Resource(uuid=mock.sentinel.a_uuid, type='firewall', attributes={})
+        resource = Resource(uuid=mock.sentinel.a_uuid)
         self.datastore.load.return_value = resource
 
         loaded_resource = self.manager.get_resource(mock.sentinel.a_uuid)
@@ -71,8 +69,8 @@ class TestManager(base.BaseTestCase):
         self.assertRaises(manager.ResourceNotFound, self.manager.get_resource, 'a uuid')
 
     def test_fetching_all_resources_returns_it_from_the_datastore(self):
-        resourceA = Resource(uuid=mock.sentinel.a_uuid, type='', attributes={})
-        resourceB = Resource(uuid=mock.sentinel.another_uuid, type='', attributes={})
+        resourceA = Resource(uuid=mock.sentinel.a_uuid)
+        resourceB = Resource(uuid=mock.sentinel.another_uuid)
         self.datastore.load_all.return_value = [resourceA, resourceB]
 
         loaded_resources = self.manager.list_resources()

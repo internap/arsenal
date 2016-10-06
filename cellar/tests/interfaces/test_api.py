@@ -31,13 +31,18 @@ class TestAPI(base.BaseTestCase):
     def setUp(self):
         super().setUp()
         self.manager = mock.Mock()
+
         self.resource_type_factory = ResourceTypeFactory()
+        self.resource_type_factory.register('server')
+        self.server_resource_type = self.resource_type_factory.get('server')
+
         self.app = get_app()
         Api(self.app, manager=self.manager, resource_type_factory=self.resource_type_factory)
 
     def test_creating_a_resource_returns_a_location(self):
         with self.app.test_client() as http_client:
-            resource = Resource(uuid='some-uuid', type='server',
+            resource = Resource(uuid='some-uuid',
+                                resource_type=self.server_resource_type,
                                 attributes={'ironic_driver': 'hello'},
                                 relations={
                                     "port1": Resource("uuid1"),
@@ -78,7 +83,7 @@ class TestAPI(base.BaseTestCase):
 
             self.manager.create_resource.assert_called_with(
                 Resource(uuid=None,
-                         type='server',
+                         resource_type=self.server_resource_type,
                          attributes={'ironic_driver': 'hello'},
                          relations={
                              "port1": Resource("uuid1"),
@@ -91,7 +96,7 @@ class TestAPI(base.BaseTestCase):
 
             self.manager.get_resource.return_value = Resource(
                 uuid=uuid,
-                type='server',
+                resource_type=self.server_resource_type,
                 attributes=dict(ironic_driver='wow'),
                 relations={
                     "port1": Resource("uuid1"),
@@ -137,8 +142,8 @@ class TestAPI(base.BaseTestCase):
     def test_fetch_all_resources_two_items(self):
         with self.app.test_client() as http_client:
             self.manager.list_resources.return_value = [
-                Resource(uuid='14', type='server', attributes=dict(ironic_driver='yes')),
-                Resource(uuid='15', type='server', attributes=dict(ironic_driver='no'),
+                Resource(uuid='14', resource_type=self.server_resource_type, attributes=dict(ironic_driver='yes')),
+                Resource(uuid='15', resource_type=self.server_resource_type, attributes=dict(ironic_driver='no'),
                          relations={"port1": Resource("uuid1")})
             ]
 
@@ -164,7 +169,6 @@ class TestAPI(base.BaseTestCase):
     def test_updating_a_resource_returns_the_updated_resource(self):
         with self.app.test_client() as http_client:
             resource = Resource(uuid='some-uuid',
-                                type='',
                                 attributes={'ironic_driver': 'changed'})
 
             self.manager.update_resource.return_value = resource
@@ -230,7 +234,8 @@ class TestAPI(base.BaseTestCase):
         self.assertEqual({
             "resource_types": [
                 {"name": "resource_type_A"},
-                {"name": "resource_type_B"}
+                {"name": "resource_type_B"},
+                {"name": "server"}
             ]
         }, json.loads(result.data.decode(result.charset)))
 
