@@ -1,3 +1,7 @@
+
+.. image:: https://travis-ci.org/internap/cellar.svg?branch=master
+    :target: https://travis-ci.org/internap/cellar
+
 ======
 cellar
 ======
