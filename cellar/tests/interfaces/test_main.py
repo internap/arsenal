@@ -11,6 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import json
 import os
 import random
 import subprocess
@@ -25,23 +26,32 @@ from retry.api import retry_call
 
 
 class TestMain(base.BaseTestCase):
+    def test_types_are_loaded_from_configured_types_file(self):
+        with app_running("cellar.test.conf") as base_url:
+            result = requests.get("{}/v1/resource-types".format(base_url))
 
-    def test_application_is_starting(self):
-        with app_running("cellar.test.conf") as port:
-            def test():
-                r = requests.get("http://localhost:{}/v1/resource-types".format(port))
-                self.assertEqual(200, r.status_code)
-                return r
-
-            result = retry_call(test, tries=50, delay=0.1,
-                                exceptions=requests.exceptions.ConnectionError)
-
+            self.assertEqual(200, result.status_code)
             self.assertEqual({
                 "resource_types": [
                     {"name": "server"},
                     {"name": "switch"}
                 ]
             }, result.json())
+
+    def test_can_save_resources_in_configured_datastore(self):
+        with app_running("cellar.test.conf") as base_url:
+            result = requests.post("{}/v1/resources".format(base_url),
+                                   headers={"content-type": "application/json"},
+                                   data=json.dumps({
+                                       'type': 'server',
+                                       'attributes': {}
+                                   }))
+            created_uuid = result.json()["uuid"]
+
+            result = requests.get("{}/v1/resources/{}".format(base_url, created_uuid))
+            fetched_uuid = result.json()["uuid"]
+
+            self.assertEqual(created_uuid, fetched_uuid)
 
 
 @contextmanager
@@ -57,10 +67,19 @@ def app_running(config_file):
                           ],
                          env=env, cwd=ROOT_DIR)
 
+    base_url = _wait_until_app_is_ready(port)
+
     try:
-        yield port
+        yield base_url
     finally:
         p.kill()
+
+
+def _wait_until_app_is_ready(port):
+    base_url = "http://localhost:{}".format(port)
+    retry_call(requests.get, fargs=[base_url], tries=50, delay=0.1,
+               exceptions=requests.exceptions.ConnectionError)
+    return base_url
 
 
 def _get_entry_point_path(entry_point):
