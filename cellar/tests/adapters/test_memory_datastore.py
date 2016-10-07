@@ -14,6 +14,7 @@
 from cellar import adapters
 from cellar.adapters.memory_datastore import MemoryDatastore
 from cellar.core.resource import Resource
+from cellar.core.resource_type import ResourceType
 from oslotest import base
 
 
@@ -23,7 +24,7 @@ class TestManager(base.BaseTestCase):
         self.datastore = MemoryDatastore()
 
     def test_save_and_load_a_resource(self):
-        resource = Resource("uuid", type='pdu', attributes={'ironic_driver': 'test'})
+        resource = Resource("uuid", resource_type=ResourceType('pdu'), attributes={'ironic_driver': 'test'})
         self.datastore.save(resource)
 
         self.assertEqual(resource, self.datastore.load("uuid"))

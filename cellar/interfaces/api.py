@@ -56,7 +56,7 @@ class Api(object):
         request_data = request.json
 
         resource = self.manager.create_resource(
-            Resource(type=request_data['type'],
+            Resource(resource_type=self.resource_type_factory.get(request_data['type']),
                      attributes=request_data['attributes'],
                      relations=self._to_relations(request_data.get('relations', {}))))
         response = make_response(json.dumps(resource_to_api(resource)), 201)
@@ -137,7 +137,7 @@ def request_to_patch_operation(request):
 
 def resource_to_api(resource):
     return {'uuid': resource.uuid,
-            'type': resource.type,
+            'type': resource.resource_type.name if resource.resource_type else "",
             'attributes': resource.attributes,
             'relations': {k: v.uuid
                           for k, v in resource.relations.items()}}

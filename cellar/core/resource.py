@@ -16,10 +16,10 @@ from cellar import Model
 
 
 class Resource(Model):
-    def __init__(self, uuid=None, type=None, attributes=None,
+    def __init__(self, uuid=None, resource_type=None, attributes=None,
                  foreign_tracking=None, relations=None):
         self.uuid = uuid
-        self.type = type
+        self.resource_type = resource_type
         self.attributes = attributes or {}
         self.foreign_tracking = foreign_tracking or {}
         self.relations = relations or {}
